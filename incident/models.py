@@ -25,11 +25,25 @@ class Incident(models.Model):
     type = models.CharField(max_length = 50, choices = inci_type)
     description = models.TextField()
     
+class Agency(models.Model):
+    name = models.CharField(max_length = 50)
+    contact = models.IntegerField()
+    email = models.EmailField()
+    dispatched_by = models.ManyToManyField(Incident, through = 'Dispatch', related_name = 'dispatch+')
+    update_to = models.ManyToManyField(Incident, through = 'InciUpdate', related_name = 'update+')
+    
 class InciUpdate(models.Model):
     incident = models.ForeignKey(Incident)
+    agency = models.ForeignKey(Agency)
     is_approved = models.BooleanField(default = False)
     updated_severity = models.IntegerField()
     description = models.TextField()
     time = models.DateTimeField('time updated')
-    updated_by = models.CharField(max_length = 20)
+    #updated_by = models.CharField(max_length = 20)
+    
+class Dispatch(models.Model):
+    incident = models.ForeignKey(Incident)
+    agency = models.ForeignKey(Agency)
+    resource = models.TextField()
+    time = models.DateTimeField('time dispatched')
     

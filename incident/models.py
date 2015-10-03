@@ -25,3 +25,11 @@ class Incident(models.Model):
     type = models.CharField(max_length = 50, choices = inci_type)
     description = models.TextField()
     
+class InciUpdate(models.Model):
+    incident = models.ForeignKey(Incident)
+    is_approved = models.BooleanField(default = False)
+    updated_severity = models.IntegerField()
+    description = models.TextField()
+    time = models.DateTimeField('time updated')
+    updated_by = models.CharField(max_length = 20)
+    

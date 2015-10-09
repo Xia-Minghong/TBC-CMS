@@ -12,8 +12,9 @@ def mani_incident(request, incident_id):
         serializer = Serializer()
         serialized = serializer.serialize([incident, ])
         return HttpResponse(serialized, content_type = "application/json")
-    #if request.method == "POST":
-        #for attribute in request.POST:
+    if request.method == "POST":
+        #request_content = json.loads(request.POST.body())
+        return HttpResponse("post")#HttpResponse(request_content)
             
 
 def mani_agency(request, agency_id):

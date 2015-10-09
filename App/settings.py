@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'incident',
     'Communication', 
+    'corsheaders',
 )
 
 MIDDLEWARE_CLASSES = (

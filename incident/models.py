@@ -33,13 +33,6 @@ class Agency(models.Model):
     dispatched_by = models.ManyToManyField(Incident, through = 'Dispatch', related_name = 'dispatch+')
     update_to = models.ManyToManyField(Incident, through = 'InciUpdate', related_name = 'update+')
     
-    def generate_json(self):
-        self_info = {}
-        self_info['name'] = self.name
-        self_info['contact'] = self.contact
-        self_info['email'] = self.email
-        return self_info
-    
 class InciUpdate(models.Model):
     incident = models.ForeignKey(Incident)
     agency = models.ForeignKey(Agency)

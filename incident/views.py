@@ -16,6 +16,9 @@ def mani_incident(request, incident_id):
         #for attribute in request.POST:
             
 
-def get_agency(request, agency_id):
-    agency = get_object_or_404(Agency, pk = agency_id)
-    return HttpResponse(json.dumps(agency.generate_json()), content_type = "application/json")
+def mani_agency(request, agency_id):
+    if request.method == "GET":
+        agency = get_object_or_404(Agency, pk = agency_id)
+        serializer = Serializer()
+        serialized = serializer.serialize([agency, ])
+        return HttpResponse(serialized, content_type = "application/json")

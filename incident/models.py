@@ -1,6 +1,7 @@
 from django.db import models
 
 # Create your models here.
+import ast
 
 class Incident(models.Model):
     inci_status = (
@@ -26,7 +27,7 @@ class Incident(models.Model):
     description = models.TextField()
     
     def generate_json(self):
-        self_info = {}
+        '''self_info = {}
         self_info['name'] = self.name
         self_info['status'] = self.status
         self_info['severity'] = self.severity
@@ -35,7 +36,15 @@ class Incident(models.Model):
         self_info['contact'] = self.contact
         self_info['type'] = self.type
         self_info['description'] = self.description
-        return self_info
+        return self_info'''
+        
+        return eval(self.__str__())
+    
+    def __str__(self):
+        #pass
+        return "{'name':'%s','status':'%s','severity':'%s','time':'%s','location':'%s','contact':'%s','type':'%s','description':'%s'}" \
+                % (self.name, self.status, self.severity, str(self.time), self.location,
+                   self.contact, self.type, self.description)
     
 class Agency(models.Model):
     name = models.CharField(max_length = 50)
@@ -43,6 +52,13 @@ class Agency(models.Model):
     email = models.EmailField()
     dispatched_by = models.ManyToManyField(Incident, through = 'Dispatch', related_name = 'dispatch+')
     update_to = models.ManyToManyField(Incident, through = 'InciUpdate', related_name = 'update+')
+    
+    def generate_json(self):
+        self_info = {}
+        self_info['name'] = self.name
+        self_info['contact'] = self.contact
+        self_info['email'] = self.email
+        return self_info
     
 class InciUpdate(models.Model):
     incident = models.ForeignKey(Incident)

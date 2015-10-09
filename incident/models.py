@@ -25,6 +25,18 @@ class Incident(models.Model):
     type = models.CharField(max_length = 50, choices = inci_type)
     description = models.TextField()
     
+    def generate_json(self):
+        self_info = {}
+        self_info['name'] = self.name
+        self_info['status'] = self.status
+        self_info['severity'] = self.severity
+        self_info['time'] = str(self.time)
+        self_info['location'] = self.location
+        self_info['contact'] = self.contact
+        self_info['type'] = self.type
+        self_info['description'] = self.description
+        return self_info
+    
 class Agency(models.Model):
     name = models.CharField(max_length = 50)
     contact = models.IntegerField()

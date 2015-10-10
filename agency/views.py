@@ -1,3 +1,25 @@
+from agency.models import Agency
+from agency.serializers import AgencySerializer
+from rest_framework import generics
+from rest_framework import viewsets
+
+class AgencyViewSet(viewsets.ModelViewSet):
+    queryset = Agency.objects.all()
+    serializer_class = AgencySerializer
+    
+    
+'''class AgencyList(generics.ListCreateAPIView):
+    #queryset = Agency.objects.all()
+    serializer_class = AgencySerializer
+    
+    def get_queryset(self):
+        return Agency.objects.all()
+    
+class AgencyDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Agency.objects.all()
+    serializer_class = AgencySerializer
+    '''
+'''
 from django.shortcuts import get_object_or_404
 
 # Create your views here.
@@ -46,3 +68,4 @@ def agency_detail(request, pk):
     elif request.methon == 'DELETE':
         agency.delete()
         return HttpResponse(status = 204)
+'''

@@ -15,13 +15,19 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
-
+from agency import views
 from . import views
+from rest_framework.routers import DefaultRouter
+from agency.views import AgencyViewSet
+from incident.views import IncidentViewSet, InciUpdateViewSet
 
+router = DefaultRouter()
+router.register(r'agencies', AgencyViewSet)
+router.register(r'incidents', IncidentViewSet)
+#router.register(r'incidents/(?P<inci_id>[0-9]+)/updates', InciUpdateViewSet)
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+    #url(r'^admin/', include(admin.site.urls)),
     url(r'^$', views.index, name='index'),
-    #url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
-    url(r'^incidents/', include('incident.urls')),
-    url(r'^agencies/', include('agency.urls')),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^', include(router.urls))
 ]

@@ -85,7 +85,7 @@ DATABASES = {
     #},
     'default': {
         'NAME' : 'cms', 
-        'ENGINE' : 'mysql.connector.django', 
+        'ENGINE' : 'django.db.backends.mysql', 
         'USER' : 'cms', 
         'PASSWORD' : 'cms', 
         'HOST' : '128.199.130.155', 

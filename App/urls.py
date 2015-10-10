@@ -21,6 +21,7 @@ from . import views
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', views.index, name='index'),
-    url(r'^incident/', include('incident.urls')), 
-
+    #url(r'^incident/', include('incident.urls')), 
+    #url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    url(r'^', include('incident.urls')),
 ]

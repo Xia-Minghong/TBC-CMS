@@ -1,7 +1,6 @@
 from django.db import models
-
+from agency.models import Agency
 # Create your models here.
-import ast
 
 class Incident(models.Model):
     inci_status = (
@@ -25,13 +24,8 @@ class Incident(models.Model):
     contact = models.IntegerField()
     type = models.CharField(max_length = 50, choices = inci_type)
     description = models.TextField()
-    
-class Agency(models.Model):
-    name = models.CharField(max_length = 50)
-    contact = models.IntegerField()
-    email = models.EmailField()
-    dispatched_by = models.ManyToManyField(Incident, through = 'Dispatch', related_name = 'dispatch+')
-    update_to = models.ManyToManyField(Incident, through = 'InciUpdate', related_name = 'update+')
+    updates = models.ManyToManyField(Agency, through = 'InciUpdate', related_name = 'update+')
+    dispatches = models.ManyToManyField(Agency, through = 'Dispatch', related_name = 'dispatch+')
     
 class InciUpdate(models.Model):
     incident = models.ForeignKey(Incident)
@@ -40,11 +34,9 @@ class InciUpdate(models.Model):
     updated_severity = models.IntegerField()
     description = models.TextField()
     time = models.DateTimeField('time updated')
-    #updated_by = models.CharField(max_length = 20)
     
 class Dispatch(models.Model):
     incident = models.ForeignKey(Incident)
     agency = models.ForeignKey(Agency)
     resource = models.TextField()
     time = models.DateTimeField('time dispatched')
-    

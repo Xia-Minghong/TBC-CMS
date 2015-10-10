@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'incident',
     'Communication', 
     'rest_framework',
+    'agency',
 )
 
 MIDDLEWARE_CLASSES = (

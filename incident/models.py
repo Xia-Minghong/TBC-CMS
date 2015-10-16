@@ -4,10 +4,10 @@ from agency.models import Agency
 
 class Incident(models.Model):
     inci_status = (
-                   ('init', 'initiated'), 
-                   ('rej', 'rejected'),
-                   ('appr', 'approved'),
-                   ('disp', 'dispatched'),
+                   ('initiated', 'initiated'), 
+                   ('rejected', 'rejected'),
+                   ('approved', 'approved'),
+                   ('dispatched', 'dispatched'),
                    ('closed', 'closed'), )
     inci_type = (
                  ('haze', 'haze'),
@@ -17,7 +17,7 @@ class Incident(models.Model):
     
     #operator = models.ForeignKey('operator') #operator yet to be created
     name = models.CharField(max_length = 50)
-    status = models.CharField(max_length = 20, choices = inci_status)
+    status = models.CharField(max_length = 20, choices = inci_status, default = 'initiated')
     severity = models.IntegerField()
     time = models.DateTimeField('time reported')
     location = models.CharField(max_length = 100)
@@ -26,6 +26,9 @@ class Incident(models.Model):
     description = models.TextField()
     updates = models.ManyToManyField(Agency, through = 'InciUpdate', related_name = 'update+')
     dispatches = models.ManyToManyField(Agency, through = 'Dispatch', related_name = 'dispatch+')
+    
+    def __str__(self):
+        return self.name
     
 class InciUpdate(models.Model):
     incident = models.ForeignKey(Incident)

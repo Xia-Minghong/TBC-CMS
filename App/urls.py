@@ -24,10 +24,11 @@ from incident.views import IncidentViewSet, InciUpdateViewSet
 router = DefaultRouter()
 router.register(r'agencies', AgencyViewSet)
 router.register(r'incidents', IncidentViewSet)
-#router.register(r'incidents/(?P<inci_id>[0-9]+)/updates', InciUpdateViewSet)
+router.register(r'incidents/(?P<inci_id>[0-9]+)/updates', InciUpdateViewSet)
+
 urlpatterns = [
     #url(r'^admin/', include(admin.site.urls)),
     url(r'^$', views.index, name='index'),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^', include(router.urls))
+    url(r'^', include(router.urls)),
 ]

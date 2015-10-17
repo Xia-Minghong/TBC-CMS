@@ -13,6 +13,7 @@ from twilio.rest import TwilioRestClient
 '''
 content: String
 phoneNumber: String, format: +6592739580
+retrun: String, a message indicate successful or not
 '''
 
 def sendingSMS(content = 'Hello! 3003 test',phoneNumber = '+6592739580'):

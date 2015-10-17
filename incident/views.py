@@ -14,6 +14,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         request.data['status'] = 'initiated'
         return viewsets.ModelViewSet.create(self, request, *args, **kwargs)
+    
     #GET http://127.0.0.1:8000/incidents/inci_id/approve/
     #Approve an incident
     @detail_route(methods=['get'])
@@ -23,6 +24,16 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident.save()
         self.queryset = Incident.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
+    
+    #GET http://127.0.0.1:8000/incidents/inci_id/reject/
+    #Reject an incident
+    @detail_route(methods=['get'])
+    def reject(self, request, pk = None):
+        incident = Incident.objects.get(pk = pk)
+        incident.status = 'rejected'
+        incident.save()
+        self.queryset = Incident.objects.all().filter(id = pk)
+        return viewsets.ModelViewSet.retrieve(self, request)        
     
 class InciUpdateViewSet(viewsets.ModelViewSet):
     queryset = InciUpdate.objects.all()

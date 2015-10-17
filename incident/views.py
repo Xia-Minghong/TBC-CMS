@@ -9,6 +9,12 @@ class IncidentViewSet(viewsets.ModelViewSet):
     queryset = Incident.objects.all()
     serializer_class = IncidentSerializer
     
+    #POST http://127.0.0.1:8000/incidents/
+    #Override create to ignore the input for status
+    def create(self, request, *args, **kwargs):
+        request.data['status'] = 'initiated'
+        return viewsets.ModelViewSet.create(self, request, *args, **kwargs)
+    
     #GET http://127.0.0.1:8000/incidents/inci_id/approve/
     #Approve an incident
     @detail_route(methods=['get'])
@@ -18,6 +24,16 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident.save()
         self.queryset = Incident.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
+    
+    #GET http://127.0.0.1:8000/incidents/inci_id/reject/
+    #Reject an incident
+    @detail_route(methods=['get'])
+    def reject(self, request, pk = None):
+        incident = Incident.objects.get(pk = pk)
+        incident.status = 'rejected'
+        incident.save()
+        self.queryset = Incident.objects.all().filter(id = pk)
+        return viewsets.ModelViewSet.retrieve(self, request)        
     
 class InciUpdateViewSet(viewsets.ModelViewSet):
     queryset = InciUpdate.objects.all()
@@ -40,6 +56,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     #Regardless of the incident input, it will create an update under inci_id
     def create(self, request, *args, **kwargs):
         request.data['incident'] = kwargs['inci_id']
+        request.data['is_approved'] = False
         return viewsets.ModelViewSet.create(self, request, *args, **kwargs)
     
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/approve/
@@ -66,6 +83,9 @@ class DispatchViewSet(viewsets.ModelViewSet):
     #Regardless of the incident input, it will create a dispatch under inci_id
     def create(self, request, *args, **kwargs):
         request.data['incident'] = kwargs['inci_id']
+        incident = Incident.objects.get(pk = kwargs['inci_id'])
+        incident.status = 'dispatched'
+        incident.save()
         self.sendSMS(request)
         return viewsets.ModelViewSet.create(self, request, *args, **kwargs)
     

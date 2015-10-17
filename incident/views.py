@@ -1,5 +1,5 @@
-from .models import Incident, InciUpdate
-from .serializers import IncidentSerializer, InciUpdateSerializer
+from .models import Incident, InciUpdate, Dispatch
+from .serializers import IncidentSerializer, InciUpdateSerializer, DispatchSerializer
 
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
@@ -51,3 +51,30 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         inci_update.save()
         self.queryset = InciUpdate.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
+    
+class DispatchViewSet(viewsets.ModelViewSet):
+    queryset = Dispatch.objects.all()
+    serializer_class = DispatchSerializer
+    
+    #GET http://127.0.0.1:8000/incidents/inci_id/dispatches/
+    def list(self, request, *args, **kwargs):
+        cur_incident = Incident.objects.get(pk = kwargs['inci_id'])
+        self.queryset = Dispatch.objects.all().filter(incident = cur_incident)
+        return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
+    
+    #POST http://127.0.0.1:8000/incidents/inci_id/dispatches/
+    #Regardless of the incident input, it will create a dispatch under inci_id
+    def create(self, request, *args, **kwargs):
+        request.data['incident'] = kwargs['inci_id']
+        self.sendSMS(request)
+        return viewsets.ModelViewSet.create(self, request, *args, **kwargs)
+    
+    #GET http://127.0.0.1:8000/incidents/inci_id/dispatches/dispatch_id/
+    #Return one dispatch associated with the incident specified by inci_id
+    def retrieve(self, request, *args, **kwargs):
+        cur_incident = Incident.objects.get(pk = kwargs['inci_id'])
+        self.queryset = Dispatch.objects.all().filter(incident = cur_incident)
+        return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
+
+    def sendSMS(self, request):
+        return request

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from incident.models import Incident, InciUpdate
+from .models import Incident, InciUpdate, Dispatch
 
 class IncidentSerializer(serializers.ModelSerializer):
     #default 'create' and 'update'
@@ -9,3 +9,7 @@ class IncidentSerializer(serializers.ModelSerializer):
 class InciUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = InciUpdate
+
+class DispatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dispatch

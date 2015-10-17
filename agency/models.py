@@ -4,3 +4,6 @@ class Agency(models.Model):
     name = models.CharField(max_length = 50)
     contact = models.IntegerField()
     email = models.EmailField()
+    
+    def __str__(self):
+        return self.name

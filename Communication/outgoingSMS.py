@@ -9,7 +9,7 @@ run this in terminal: pip install twilio
 '''
 
 
-from twilio.rest import TwilioRestClient
+from twilio.rest.client import TwilioRestClient
 '''
 content: String
 phoneNumber: String, format: +6592739580

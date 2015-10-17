@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'Communication', 
     'rest_framework',
     'agency',
+    'twilio', 
 )
 
 MIDDLEWARE_CLASSES = (

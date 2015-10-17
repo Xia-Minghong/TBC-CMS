@@ -1,8 +1,9 @@
 from .models import Incident, InciUpdate, Dispatch
 from .serializers import IncidentSerializer, InciUpdateSerializer, DispatchSerializer
-
+from agency.models import Agency
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
+from Communication.outgoingSMS import sendingSMS
 #from rest_framework.response import Response
 
 class IncidentViewSet(viewsets.ModelViewSet):
@@ -86,7 +87,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
         incident = Incident.objects.get(pk = kwargs['inci_id'])
         incident.status = 'dispatched'
         incident.save()
-        self.sendSMS(request)
+        self.sendSMS(request, incident)
         return viewsets.ModelViewSet.create(self, request, *args, **kwargs)
     
     #GET http://127.0.0.1:8000/incidents/inci_id/dispatches/dispatch_id/
@@ -96,5 +97,8 @@ class DispatchViewSet(viewsets.ModelViewSet):
         self.queryset = Dispatch.objects.all().filter(incident = cur_incident)
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
 
-    def sendSMS(self, request):
-        return request
+    def sendSMS(self, request, incident):
+        agency = Agency.objects.get(pk = request.data['agency'])
+        content = "Name: {} Location: {} Description: {} Resources: {}" \
+            .format(incident.name, incident.location, incident.description, request.data['resource'])
+        sendingSMS(content, '+65' + str(agency.contact))

@@ -41,7 +41,8 @@ INSTALLED_APPS = (
     'Communication', 
     'rest_framework',
     'agency',
-    'twilio', 
+    'twilio',
+    'corsheaders',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -53,6 +54,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 )
 
 ROOT_URLCONF = 'App.urls'
@@ -95,6 +98,8 @@ DATABASES = {
              
 }
 
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/

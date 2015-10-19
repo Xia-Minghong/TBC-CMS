@@ -101,4 +101,4 @@ class DispatchViewSet(viewsets.ModelViewSet):
         agency = Agency.objects.get(pk = request.data['agency'])
         content = "Name: {} Location: {} Description: {} Resources: {}" \
             .format(incident.name, incident.location, incident.description, request.data['resource'])
-        sendingSMS(content, '+65' + str(agency.contact))
+        sendingSMS(content, agency.contact)

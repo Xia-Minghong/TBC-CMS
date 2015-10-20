@@ -19,13 +19,15 @@ from . import views
 from rest_framework.routers import DefaultRouter
 from agency.views import AgencyViewSet
 from incident.views import IncidentViewSet, InciUpdateViewSet, DispatchViewSet
+from . import views
 
 router = DefaultRouter()
 router.register(r'agencies', AgencyViewSet)
 router.register(r'incidents', IncidentViewSet)
 router.register(r'incidents/(?P<inci_id>[0-9]+)/updates', InciUpdateViewSet)
 router.register(r'incidents/(?P<inci_id>[0-9]+)/dispatches', DispatchViewSet)
-
+router.register(r'users', views.UserViewSet)
+router.register(r'groups', views.GroupViewSet)
 urlpatterns = [
     #url(r'^admin/', include(admin.site.urls)),
     url(r'^$', views.index, name='index'),

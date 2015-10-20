@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'djangular',
     'incident',
     'Communication', 
     'rest_framework',
@@ -75,8 +76,6 @@ TEMPLATES = [
         },
     },
 ]
-
-WSGI_APPLICATION = 'App.wsgi.application'
 
 
 # Database
@@ -123,3 +122,55 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '[%(asctime)s %(module)s] %(levelname)s: %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
+TEMPLATE_CONTEXT_PROCESSORS = ()
+
+# if package django-websocket-redis is installed, some more tests can be be added
+try:
+    import ws4redis
+
+    INSTALLED_APPS += ('ws4redis',)
+
+    TEMPLATE_CONTEXT_PROCESSORS += ('ws4redis.context_processors.default',)
+
+    # This setting is required to override the Django's main loop, when running in
+    # development mode, such as ./manage runserver
+    WSGI_APPLICATION = 'ws4redis.django_runserver.application'
+
+    # URL that distinguishes websocket connections from normal requests
+    WEBSOCKET_URL = '/ws/'
+
+    # Set the number of seconds each message shall persited
+    WS4REDIS_EXPIRE = 3600
+
+    WS4REDIS_HEARTBEAT = '--heartbeat--'
+
+    WS4REDIS_PREFIX = 'djangular'
+
+except ImportError:
+    pass

@@ -2,9 +2,13 @@ from .models import Incident, InciUpdate, Dispatch
 from .serializers import IncidentSerializer, InciUpdateSerializer, DispatchSerializer
 from agency.models import Agency
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from Communication.outgoingSMS import sendingSMS
-#from rest_framework.response import Response
+from rest_framework.response import Response
+
+from ws4redis.publisher import RedisPublisher
+from ws4redis.redis_store import RedisMessage
+import json
 
 class IncidentViewSet(viewsets.ModelViewSet):
     queryset = Incident.objects.all()
@@ -34,7 +38,22 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident.status = 'rejected'
         incident.save()
         self.queryset = Incident.objects.all().filter(id = pk)
-        return viewsets.ModelViewSet.retrieve(self, request)        
+        return viewsets.ModelViewSet.retrieve(self, request)
+
+    @list_route(methods=['get'])
+    def sync(self, request):
+        redis_publisher = RedisPublisher(facility='my_collection', broadcast=True)
+
+        jsonMsg = {}
+        jsonMsg['first_name'] = "jjjj"
+
+        message = RedisMessage(json.dumps(jsonMsg))
+        # and somewhere else
+        redis_publisher.publish_message(message)
+        message = redis_publisher.fetch_message(request, 'my_collection')
+        message = json.loads(message)
+        return Response(message)
+
     
 class InciUpdateViewSet(viewsets.ModelViewSet):
     queryset = InciUpdate.objects.all()

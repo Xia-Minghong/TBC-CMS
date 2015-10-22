@@ -40,19 +40,22 @@ class IncidentViewSet(viewsets.ModelViewSet):
         self.queryset = Incident.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
 
+
     @list_route(methods=['get'])
     def sync(self, request):
         redis_publisher = RedisPublisher(facility='my_collection', broadcast=True)
 
-        jsonMsg = {}
-        jsonMsg['first_name'] = "jjjj"
+        message = redis_publisher.fetch_message(request, 'incidents')
+        if not message:
+            message = json.dumps({})
+        # message = json.loads(message)
+        #
+        # message['first_name'] = 'zzzz'
+        #
+        # message = RedisMessage(json.dumps(message))
+        # redis_publisher.publish_message(message)
 
-        message = RedisMessage(json.dumps(jsonMsg))
-        # and somewhere else
-        redis_publisher.publish_message(message)
-        message = redis_publisher.fetch_message(request, 'my_collection')
-        message = json.loads(message)
-        return Response(message)
+        return Response(json.loads(message))
 
     
 class InciUpdateViewSet(viewsets.ModelViewSet):

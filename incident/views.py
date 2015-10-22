@@ -43,9 +43,11 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
     @list_route(methods=['get'])
     def sync(self, request):
-        redis_publisher = RedisPublisher(facility='my_collection', broadcast=True)
+        # Sample code for reading incidents message queue
+        redis_publisher = RedisPublisher(facility='incidents', broadcast=True)
 
         message = redis_publisher.fetch_message(request, 'incidents')
+        # if the message is empty, replace it with a empty json/dict and convert to a string
         if not message:
             message = json.dumps({})
         # message = json.loads(message)

@@ -51,5 +51,4 @@ class FacebookPublisher(MediaPublisher):
     # http://stackoverflow.com/questions/8231877/facebook-access-token-for-pages
     # and make that long-lived token as in Step 3
 
-fb = MediaPublisherLoader.load_publisher(type="FacebookPublisher")
-print(fb.compose_and_publish("message from Pycharm"))
+

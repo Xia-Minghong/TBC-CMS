@@ -5,6 +5,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from Communication.outgoingSMS import sendingSMS
 from rest_framework.response import Response
+from Communication.models import MediaPublisherLoader
 
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
@@ -19,7 +20,14 @@ class IncidentViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         request.data['status'] = 'initiated'
         return viewsets.ModelViewSet.create(self, request, *args, **kwargs)
-    
+
+    #GET http://127.0.0.1:8000/incidents/type/test_send/
+    @detail_route(methods=['get'])
+    def test_send(self,request, *args, **kwargs):
+        print(kwargs['pk'])
+        fb = MediaPublisherLoader.load_publisher(type="FacebookPublisher")
+        return Response(fb.compose_and_publish("testing from Postman"))
+
     #GET http://127.0.0.1:8000/incidents/inci_id/approve/
     #Approve an incident
     @detail_route(methods=['get'])

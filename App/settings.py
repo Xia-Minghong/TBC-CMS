@@ -39,7 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'djangular',
     'incident',
-    'Communication', 
+    'Communication',
     'rest_framework',
     'agency',
     'twilio',

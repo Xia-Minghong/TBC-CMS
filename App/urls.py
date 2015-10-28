@@ -18,12 +18,14 @@ from django.contrib import admin
 from . import views
 from rest_framework.routers import DefaultRouter
 from agency.views import AgencyViewSet
+from Communication.views import PublisherViewSet
 from incident.views import IncidentViewSet, InciUpdateViewSet, DispatchViewSet
 from . import views
 
 router = DefaultRouter()
 router.register(r'agencies', AgencyViewSet)
 router.register(r'incidents', IncidentViewSet)
+router.register(r'publishers', PublisherViewSet)
 router.register(r'incidents/(?P<inci_id>[0-9]+)/updates', InciUpdateViewSet)
 router.register(r'incidents/(?P<inci_id>[0-9]+)/dispatches', DispatchViewSet)
 router.register(r'users', views.UserViewSet)

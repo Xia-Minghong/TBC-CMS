@@ -90,13 +90,13 @@ class SmsPublisher(MediaPublisher):
     '''
     def compose_and_publish(self,message='Message not passed in',recipient_list=None):
         from twilio.rest.client import TwilioRestClient
-        accountSID = 'ACd17b8f772616df2b3a5bf2c9a1eadf64'
-        authToken = '49136b82970f42604dc1fd141a22c1fe'
+        accountSID = 'AC9ae3071c0a5e576c45b3822e7f33e176'
+        authToken = 'c65cba6198e425f50f3b1eda3487d984'
         client = TwilioRestClient(accountSID,authToken)
         phoneNumber = '+6584393467'
         print(phoneNumber)
         try:
-            client.messages.create(body=message, to=phoneNumber, from_='+12053514820' )
+            client.messages.create(body=message, to=phoneNumber, from_='+14692083379' )
         except Exception as e:
             return e.__str__()
         return 'Message successfully sent to '+phoneNumber

@@ -7,3 +7,5 @@ class SocialMediaReport(models.Model):
     timestamp = models.DateTimeField('time published')
     socialMediaText = models.TextField()
 
+class StatusReport(models.Model):
+    pass

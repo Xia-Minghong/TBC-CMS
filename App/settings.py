@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'Communication',
     'rest_framework',
     'agency',
+    'users',
     'twilio',
     'corsheaders',
 )

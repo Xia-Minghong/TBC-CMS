@@ -30,7 +30,9 @@ class PublisherViewSet(viewsets.ModelViewSet):
     def send(self,request, *args, **kwargs):
         type = kwargs['pk']
         time = timezone.localtime(timezone.now())
-        message = 'The testing is successful!!!'# Message sent at: ' + str(time)
+        message = 'The testing is successful!!!' + str(time)
+
         publisher = MediaPublisherLoader.load_publisher(type=type)
         return Response(publisher.compose_and_publish(message))
+        # return Response(message)
 

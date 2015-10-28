@@ -109,7 +109,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Singapore'
 
 USE_I18N = True
 
@@ -178,3 +178,9 @@ try:
 
 except ImportError:
     pass
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'cms.by.tbc@gmail.com'
+EMAIL_HOST_PASSWORD ='root@jiaxiang'
+EMAIL_USE_TLS = True

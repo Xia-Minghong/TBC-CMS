@@ -6,7 +6,7 @@ from rest_framework.decorators import detail_route, list_route
 from Communication.outgoingSMS import sendingSMS
 from rest_framework.response import Response
 from Communication.models import MediaPublisherLoader
-
+from django.utils import timezone
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
 import json
@@ -24,9 +24,12 @@ class IncidentViewSet(viewsets.ModelViewSet):
     #GET http://127.0.0.1:8000/incidents/type/test_send/
     @detail_route(methods=['get'])
     def test_send(self,request, *args, **kwargs):
-        print(kwargs['pk'])
-        fb = MediaPublisherLoader.load_publisher(type="FacebookPublisher")
-        return Response(fb.compose_and_publish("testing from Postman"))
+        type = kwargs['pk']
+        time = timezone.localtime(timezone.now())
+        message = 'The testing is successful!!! Message sent at: ' + str(time)
+        publisher = MediaPublisherLoader.load_publisher(type=type)
+        return Response(publisher.compose_and_publish(message))
+
 
     #GET http://127.0.0.1:8000/incidents/inci_id/approve/
     #Approve an incident

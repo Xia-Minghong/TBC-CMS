@@ -6,6 +6,7 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from django.utils import timezone
 from.media_publishers import MediaPublisherLoader
+from incident.views import IncidentMgr
 
 
 class SocialMediaReportSerializer(serializers.ModelSerializer):
@@ -16,8 +17,6 @@ class SocialMediaReportSerializer(serializers.ModelSerializer):
 class SocialMediaReportViewSet(viewsets.ModelViewSet):
     queryset = SocialMediaReport.objects.all()
     serializer_class = SocialMediaReportSerializer
-
-
 
 
 class PublisherViewSet(viewsets.ModelViewSet):
@@ -31,8 +30,10 @@ class PublisherViewSet(viewsets.ModelViewSet):
         import time
         #localtime = time.asctime( time.localtime(time.time()) )
         #localtime = timezone.localtime(timezone.now())
-        report = 'The testing is successful!!!' + time.ctime()
-        return report
+        data = IncidentMgr().recent_incidents()
+        success_message = 'The testing is successful!!!' + time.ctime()
+        #data["success"] = success_message
+        return success_message+ "\n" + str(data)
 
     def publish(self, type):
         message = self.generate_message()

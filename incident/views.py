@@ -8,6 +8,9 @@ from rest_framework.response import Response
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
 import json
+import datetime
+
+RECENT_INTERVAL = datetime.timedelta(days=20)
 
 class IncidentViewSet(viewsets.ModelViewSet):
     queryset = Incident.objects.all()
@@ -33,9 +36,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     #GET http://127.0.0.1:8000/incidents/recent/
     @list_route(methods=['get'])
     def recent(self, request, pk = None):
-        import datetime
-        timedelta = datetime.timedelta(days=20)
-        return IncidentMgr().recent_incidents(timedelta=timedelta)
+        return Response(IncidentMgr().recent_incidents(timedelta=RECENT_INTERVAL))
 
     #GET http://127.0.0.1:8000/incidents/inci_id/reject/
     #Reject an incident
@@ -166,10 +167,10 @@ class IncidentMgr(object,AbstractNotifier):
                                 cls, *args, **kwargs)
         return cls._instance
 
-    def recent_incidents(self, timedelta):
+    def recent_incidents(self, timedelta=RECENT_INTERVAL):
         import datetime
         now = datetime.datetime.now()
         cut_off = now - timedelta
         incidents = Incident.objects.filter(time__gte=cut_off)
         serializer = IncidentSerializer(incidents, many=True)
-        return Response(serializer.data)
+        return serializer.data

@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'users',
     'twilio',
     'corsheaders',
+    'system_log',
 )
 '''REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),

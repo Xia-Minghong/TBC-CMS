@@ -18,6 +18,8 @@ class SocialMediaReportViewSet(viewsets.ModelViewSet):
     serializer_class = SocialMediaReportSerializer
 
 
+
+
 class PublisherViewSet(viewsets.ModelViewSet):
 
     queryset = SocialMediaReport.objects.all()
@@ -25,15 +27,37 @@ class PublisherViewSet(viewsets.ModelViewSet):
     '''need to edit the above'''
 
 
+    def generate_message(self):
+        import time
+        #localtime = time.asctime( time.localtime(time.time()) )
+        #localtime = timezone.localtime(timezone.now())
+        report = 'The testing is successful!!!' + time.ctime()
+        return report
+
+    def publish(self, type):
+        message = self.generate_message()
+        publisher = MediaPublisherLoader.load_publisher(type=type)
+        return publisher.compose_and_publish(message)
+
+
     #GET http://127.0.0.1:8000/publishers/type/send/
     @detail_route(methods=['get'])
     def send(self,request, *args, **kwargs):
         type = kwargs['pk']
-        import time
-        localtime = time.asctime( time.localtime(time.time()) )
-        #localtime = timezone.localtime(timezone.now())
-        message = 'The testing is successful!!!' + str(localtime)
-        publisher = MediaPublisherLoader.load_publisher(type=type)
-        return Response(publisher.compose_and_publish(message))
-        #return Response(message)
+        return Response(self.publish(type))
 
+    #GET http://127.0.0.1:8000/publishers/type/repeatedly_send/
+    @detail_route(methods=['get'])
+    def repeatedly_send(self,request, *args, **kwargs):
+        type = kwargs['pk']
+        self.periodically_publish(type)
+        return Response("haha")
+
+
+    TIME_INTERVAL = 8
+
+    def periodically_publish(self,type):
+        import time, threading
+        print(time.ctime())
+        self.publish(type)
+        threading.Timer(self.TIME_INTERVAL, self.periodically_publish(type)).start()

@@ -18,6 +18,8 @@ class MediaPublisher:
     def compose_and_publish(self,message,recipient_list=None):
         pass
 
+
+
 class FacebookPublisher(MediaPublisher):
 
     def compose_and_publish(self,message,recipient_list=None):
@@ -88,17 +90,22 @@ class SmsPublisher(MediaPublisher):
     phoneNumber: String, format: +6592739580
     retrun: String, a message indicate successful or not
     '''
-    def compose_and_publish(self,message='Message not passed in',recipient_list=None):
+    def compose_and_publish(self,message='Message not passed in',recipient_list=['+6584393467',]):
+        return_message = "Message successfully send to:"
+        for recipient in recipient_list:
+            return_message += "\n" + self.send(message,recipient=recipient)
+        return return_message
+
+    def send(self,message='Message not passed in',recipient=None):
         from twilio.rest.client import TwilioRestClient
         accountSID = 'AC9ae3071c0a5e576c45b3822e7f33e176'
         authToken = 'c65cba6198e425f50f3b1eda3487d984'
         client = TwilioRestClient(accountSID,authToken)
-        phoneNumber = '+6584393467'
-        print(phoneNumber)
+        print(recipient)
         try:
-            client.messages.create(body=message, to=phoneNumber, from_='+14692083379' )
+            client.messages.create(body=message, to=recipient, from_='+14692083379' )
         except Exception as e:
             return e.__str__()
-        return 'Message successfully sent to '+phoneNumber
+        return recipient
 
 

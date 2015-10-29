@@ -29,7 +29,14 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident.save()
         self.queryset = Incident.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
-    
+
+    #GET http://127.0.0.1:8000/incidents/recent/
+    @list_route(methods=['get'])
+    def recent(self, request, pk = None):
+        import datetime
+        timedelta = datetime.timedelta(days=20)
+        return IncidentMgr().recent_incidents(timedelta=timedelta)
+
     #GET http://127.0.0.1:8000/incidents/inci_id/reject/
     #Reject an incident
     @detail_route(methods=['get'])
@@ -39,7 +46,6 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident.save()
         self.queryset = Incident.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
-
 
     @list_route(methods=['get'])
     def sync(self, request):
@@ -126,3 +132,44 @@ class DispatchViewSet(viewsets.ModelViewSet):
         content = "Name: {} Location: {} Description: {} Resources: {}" \
             .format(incident.name, incident.location, incident.description, request.data['resource'])
         sendingSMS(content, agency.contact)
+
+
+
+class AbstractNotifier:
+    def __init__(self):
+        self.observers = []
+
+    def register(self, observer):
+        if not observer in self.observers:
+            self.observers.append(observer)
+
+    def unregister(self, observer):
+        if observer in self.observers:
+            self.observers.remove(observer)
+
+    def unregister_all(self):
+        if self.observers:
+            del self.observers[:]
+
+    def notify(self, *args, **kwargs):
+        for observer in self.observers:
+            observer.update(*args, **kwargs)
+
+
+class IncidentMgr(object,AbstractNotifier):
+    _instance = None
+
+    #overwriting the existing __new__() method
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(IncidentMgr, cls).__new__(
+                                cls, *args, **kwargs)
+        return cls._instance
+
+    def recent_incidents(self, timedelta):
+        import datetime
+        now = datetime.datetime.now()
+        cut_off = now - timedelta
+        incidents = Incident.objects.filter(time__gte=cut_off)
+        serializer = IncidentSerializer(incidents, many=True)
+        return Response(serializer.data)

@@ -25,14 +25,15 @@ class PublisherViewSet(viewsets.ModelViewSet):
     '''need to edit the above'''
 
 
-    #GET http://127.0.0.1:8000/communications/type/send/
+    #GET http://127.0.0.1:8000/publishers/type/send/
     @detail_route(methods=['get'])
     def send(self,request, *args, **kwargs):
         type = kwargs['pk']
-        time = timezone.localtime(timezone.now())
-        message = 'The testing is successful!!!' + str(time)
-
+        import time
+        localtime = time.asctime( time.localtime(time.time()) )
+        #localtime = timezone.localtime(timezone.now())
+        message = 'The testing is successful!!!' + str(localtime)
         publisher = MediaPublisherLoader.load_publisher(type=type)
         return Response(publisher.compose_and_publish(message))
-        # return Response(message)
+        #return Response(message)
 

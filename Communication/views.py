@@ -63,4 +63,4 @@ class PublisherViewSet(viewsets.ModelViewSet):
         import time, threading
         threading.Timer(self.TIME_INTERVAL, lambda:self.periodically_publish(type)).start()
         message = self.publish(type)
-        print(time.ctime() + '\n' + message)
+        print("**********************\n" + time.ctime() + '\n' + message + "\n*********************")

@@ -10,7 +10,7 @@ from ws4redis.redis_store import RedisMessage
 import json
 import datetime
 
-RECENT_INTERVAL = datetime.timedelta(days=10)
+RECENT_INTERVAL = datetime.timedelta(days=50)
 
 class IncidentViewSet(viewsets.ModelViewSet):
     queryset = Incident.objects.all()

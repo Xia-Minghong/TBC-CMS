@@ -30,12 +30,42 @@ class PublisherViewSet(viewsets.ModelViewSet):
         import time
         #localtime = time.asctime( time.localtime(time.time()) )
         #localtime = timezone.localtime(timezone.now())
-        incident_data = IncidentMgr().recent_incidents()
-        update_data = InciUpdateMgr().recent_updates()
-        dispatch_data = DispatchMgr().recent_dispatches()
-        success_message = 'The testing is successful!!!\nTime tested: ' + time.ctime()
-        #data["success"] = success_message
-        return success_message+ "\n\n\n\n\n" + str(incident_data) + "\n\n\n\n\n" + str(update_data) + "\n\n\n\n\n" + str(dispatch_data)
+        incidents_data = IncidentMgr().recent_incidents()
+        updates_data = InciUpdateMgr().recent_updates()
+        dispatches_data = DispatchMgr().recent_dispatches()
+        message = 'The testing is successful!!!\nTime tested: ' + time.ctime()
+
+        message += ("\n\nRecent Incidents\n====================")
+        for incident in incidents_data:
+            message += ("\n")
+            message += ("\nIncident   : " + incident["name"])
+            message += ("\ntype       : " + incident["type"])
+            message += ("\nStatus     : " + incident["status"])
+            message += ("\nSeverity   : " + str(incident["severity"]))
+            message += ("\nTime       : " + incident["time"])
+            message += ("\nLocation   : " + incident["location"])
+            message += ("\nDescription: " + incident["description"])
+            message += ("\n")
+
+        message += ("\n\nRecent Updates\n====================")
+        for update in updates_data:
+            message += ("\n")
+            message += ("\nIncident        : " + update["incident"]["name"])
+            message += ("\nUpdatd by       : " + update["agency"]["name"])
+            message += ("\nStatus          : " + ("approved","pending")[update["is_approved"]])
+            message += ("\nUpdated Severity: " + str(update["updated_severity"]))
+            message += ("\nDescription     : " + update["description"])
+            message += ("\n")
+
+        message += ("\n\nRecent Dispatches\n====================")
+        for dispatch in dispatches_data:
+            message += ("\n")
+            message += ("\nIncident         : " + dispatch["incident"]["name"])
+            message += ("\nDispatched Agency: " + dispatch["agency"]["name"])
+            message += ("\nResource         : " + dispatch["resource"])
+            message += ("\nTime             : " + incident["time"])
+            message += ("\n")
+        return message
 
     def publish(self, type):
         message = self.generate_message()
@@ -57,7 +87,7 @@ class PublisherViewSet(viewsets.ModelViewSet):
         return Response("haha")
 
 
-    TIME_INTERVAL = 5
+    TIME_INTERVAL = 10
 
     def periodically_publish(self,type):
         import time, threading

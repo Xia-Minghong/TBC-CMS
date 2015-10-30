@@ -10,7 +10,7 @@ from ws4redis.redis_store import RedisMessage
 import json
 import datetime
 
-RECENT_INTERVAL = datetime.timedelta(days=20)
+RECENT_INTERVAL = datetime.timedelta(days=50)
 
 class IncidentViewSet(viewsets.ModelViewSet):
     queryset = Incident.objects.all()
@@ -173,4 +173,40 @@ class IncidentMgr(object,AbstractNotifier):
         cut_off = now - timedelta
         incidents = Incident.objects.filter(time__gte=cut_off)
         serializer = IncidentSerializer(incidents, many=True)
+        return serializer.data
+
+class InciUpdateMgr(object,AbstractNotifier):
+    _instance = None
+
+    #overwriting the existing __new__() method
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(InciUpdateMgr, cls).__new__(
+                                cls, *args, **kwargs)
+        return cls._instance
+
+    def recent_updates(self, timedelta=RECENT_INTERVAL):
+        import datetime
+        now = datetime.datetime.now()
+        cut_off = now - timedelta
+        inci_updates = InciUpdate.objects.filter(time__gte=cut_off)
+        serializer = InciUpdateSerializer(inci_updates, many=True)
+        return serializer.data
+
+class DispatchMgr(object,AbstractNotifier):
+    _instance = None
+
+    #overwriting the existing __new__() method
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(DispatchMgr, cls).__new__(
+                                cls, *args, **kwargs)
+        return cls._instance
+
+    def recent_dispatches(self, timedelta=RECENT_INTERVAL):
+        import datetime
+        now = datetime.datetime.now()
+        cut_off = now - timedelta
+        dispatches = Dispatch.objects.filter(time__gte=cut_off)
+        serializer = DispatchSerializer(dispatches, many=True)
         return serializer.data

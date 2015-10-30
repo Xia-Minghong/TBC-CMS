@@ -40,9 +40,13 @@ class InciUpdate(models.Model):
     updated_severity = models.IntegerField()
     description = models.TextField()
     time = models.DateTimeField('time updated', default = django.utils.timezone.now)
+    def __str__(self):
+        return str(self.incident)
     
 class Dispatch(models.Model):
     incident = models.ForeignKey(Incident)
     agency = models.ForeignKey(Agency)
     resource = models.TextField()
     time = models.DateTimeField('time dispatched', default = django.utils.timezone.now)
+    def __str__(self):
+        return str(self.incident)

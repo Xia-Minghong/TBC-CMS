@@ -1,4 +1,5 @@
 from .models import Incident, InciUpdate, Dispatch
+from .models import inci_type
 from .serializers import IncidentSerializer, InciUpdateSerializer, DispatchSerializer
 from agency.models import Agency
 from rest_framework import viewsets
@@ -65,6 +66,14 @@ class IncidentViewSet(viewsets.ModelViewSet):
         # redis_publisher.publish_message(message)
 
         return Response(json.loads(message))
+    
+    @list_route(methods=['get'])
+    def types(self, request):
+        result = []
+        for item in inci_type:
+            each_type = dict(zip(['value', 'title'], list(item)))
+            result.append(each_type)
+        return Response(data = result)
 
     
 class InciUpdateViewSet(viewsets.ModelViewSet):

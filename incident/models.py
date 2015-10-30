@@ -4,10 +4,10 @@ import django.utils
 # Create your models here.
 
 inci_type = (
-                 ('haze', 'haze'),
-                 ('fire', 'fire'),
-                 ('crash', 'crash'),
-                 ('dengue', 'dengue'), )
+                 ('haze', 'Haze'),
+                 ('fire', 'Fire'),
+                 ('crash', 'Crash'),
+                 ('dengue', 'Dengue'), )
 
 class Incident(models.Model):
     inci_status = (
@@ -16,7 +16,6 @@ class Incident(models.Model):
                    ('approved', 'approved'),
                    ('dispatched', 'dispatched'),
                    ('closed', 'closed'), )
-    
     
     #operator = models.ForeignKey('operator') #operator yet to be created
     name = models.CharField(max_length = 50)

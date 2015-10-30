@@ -6,7 +6,7 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from django.utils import timezone
 from.media_publishers import MediaPublisherLoader
-from incident.views import IncidentMgr
+from incident.views import IncidentMgr, InciUpdateMgr, DispatchMgr
 
 
 class SocialMediaReportSerializer(serializers.ModelSerializer):
@@ -30,10 +30,12 @@ class PublisherViewSet(viewsets.ModelViewSet):
         import time
         #localtime = time.asctime( time.localtime(time.time()) )
         #localtime = timezone.localtime(timezone.now())
-        data = IncidentMgr().recent_incidents()
-        success_message = 'The testing is successful!!!' + time.ctime()
+        incident_data = IncidentMgr().recent_incidents()
+        update_data = InciUpdateMgr().recent_updates()
+        dispatch_data = DispatchMgr().recent_dispatches()
+        success_message = 'The testing is successful!!!\nTime tested: ' + time.ctime()
         #data["success"] = success_message
-        return success_message+ "\n" + str(data)
+        return success_message+ "\n\n\n\n\n" + str(incident_data) + "\n\n\n\n\n" + str(update_data) + "\n\n\n\n\n" + str(dispatch_data)
 
     def publish(self, type):
         message = self.generate_message()
@@ -55,10 +57,10 @@ class PublisherViewSet(viewsets.ModelViewSet):
         return Response("haha")
 
 
-    TIME_INTERVAL = 8
+    TIME_INTERVAL = 5
 
     def periodically_publish(self,type):
         import time, threading
-        print(time.ctime())
-        self.publish(type)
-        threading.Timer(self.TIME_INTERVAL, self.periodically_publish(type)).start()
+        threading.Timer(self.TIME_INTERVAL, lambda:self.periodically_publish(type)).start()
+        message = self.publish(type)
+        print(time.ctime() + '\n' + message)

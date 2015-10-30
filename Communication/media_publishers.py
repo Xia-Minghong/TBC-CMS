@@ -50,7 +50,7 @@ class FacebookPublisher(MediaPublisher):
     # http://stackoverflow.com/questions/8231877/facebook-access-token-for-pages
     # and make that long-lived token as in Step 3
 class EmailPublisher(MediaPublisher):
-    def compose_and_publish(self, message = 'Message not passed in',recipient_list=['jfu003@e.ntu.edu.sg',]):
+    def compose_and_publish(self, message = 'Message not passed in',recipient_list=['jfu003@e.ntu.edu.sg',]): #'hone5com@gmail.com', 'jfu003@e.ntu.edu.sg', 'C130062@e.ntu.edu.sg',
         try:
             from django.core.mail import send_mass_mail
             subject = 'Crisis Report'
@@ -59,7 +59,10 @@ class EmailPublisher(MediaPublisher):
             send_mass_mail((message,),fail_silently=False, auth_user=settings.EMAIL_HOST_USER, auth_password=settings.EMAIL_HOST_PASSWORD)
         except Exception as e:
             return str(e)
-        return 'Email successfully sent, please check!'
+        return_message = 'Email successfully sent to: '
+        for recipient in recipient_list:
+            return_message += ('\n' + recipient)
+        return return_message
 
 class TwitterPublisher(MediaPublisher):
     def compose_and_publish(self,message='Message not passed in',recipient_list=None):

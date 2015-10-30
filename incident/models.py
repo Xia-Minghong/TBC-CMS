@@ -25,7 +25,7 @@ class Incident(models.Model):
     location = models.CharField(max_length = 100)
     contact = models.CharField(max_length = 50)
     type = models.CharField(max_length = 50, choices = inci_type)
-    description = models.TextField()
+    description = models.TextField(blank = True)
     updates = models.ManyToManyField(Agency, through = 'InciUpdate', related_name = 'update+')
     dispatches = models.ManyToManyField(Agency, through = 'Dispatch', related_name = 'dispatch+')
     

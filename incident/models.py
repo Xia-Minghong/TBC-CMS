@@ -3,6 +3,12 @@ from agency.models import Agency
 import django.utils
 # Create your models here.
 
+inci_type = (
+                 ('haze', 'haze'),
+                 ('fire', 'fire'),
+                 ('crash', 'crash'),
+                 ('dengue', 'dengue'), )
+
 class Incident(models.Model):
     inci_status = (
                    ('initiated', 'initiated'), 
@@ -10,11 +16,7 @@ class Incident(models.Model):
                    ('approved', 'approved'),
                    ('dispatched', 'dispatched'),
                    ('closed', 'closed'), )
-    inci_type = (
-                 ('haze', 'haze'),
-                 ('fire', 'fire'),
-                 ('crash', 'crash'),
-                 ('dengue', 'dengue'), )
+    
     
     #operator = models.ForeignKey('operator') #operator yet to be created
     name = models.CharField(max_length = 50)

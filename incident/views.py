@@ -26,6 +26,8 @@ class IncidentViewSet(viewsets.ModelViewSet):
     queryset = Incident.objects.all()
     serializer_class = IncidentSerializer
     
+    def publish(self):
+        publish_incident()
     #POST http://127.0.0.1:8000/incidents/
     #Override create to ignore the input for status
     '''Return
@@ -46,7 +48,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         request.data['status'] = 'initiated'
         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
-        publish_incident()
+        self.publish()
         new_incident = Incident.objects.order_by('-id')[0]
         serializer = self.get_serializer(new_incident)
         create_syslog(name = "Create an Incident", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
@@ -169,6 +171,13 @@ class IncidentViewSet(viewsets.ModelViewSet):
             each_type = dict(zip(['value', 'title'], list(item)))
             result.append(each_type)
         return Response(data = result)
+    
+    @list_route(methods=['get'])
+    def allupdates(self, request):
+        queryset = InciUpdate.objects.all().order_by('-time')
+        serializer = InciUpdateSerializer(queryset, many = True)
+        return Response(data = serializer.data)
+        
 
     
 class InciUpdateViewSet(viewsets.ModelViewSet):
@@ -206,7 +215,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         publish_incident()
         inci_serializer = IncidentSerializer(cur_incident)
         create_syslog(name = "Update an Incident via an Incident Update", generator = request.user, description = json.dumps(inci_serializer.data).replace('\"', ''))
-        self.publish()
+        self.publish() 
         new_inciUpdate = InciUpdate.objects.order_by('-id')[0]
         serializer = self.get_serializer(new_inciUpdate)
         create_syslog(name = "Create an Incident Update", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))

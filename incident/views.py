@@ -10,6 +10,7 @@ from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
 import json
 import datetime
+from system_log.views import create_syslog
 from django.template.context_processors import request
 
 RECENT_INTERVAL = datetime.timedelta(days=50)
@@ -18,22 +19,71 @@ class IncidentViewSet(viewsets.ModelViewSet):
     queryset = Incident.objects.all()
     serializer_class = IncidentSerializer
     
+    def publish(self):
+        queryset = Incident.objects.all()
+        serializer = self.get_serializer(queryset, many = True)
+        redis_publisher = RedisPublisher(facility = 'incidents', broadcast = True)
+        redis_publisher.publish_message(RedisMessage(json.dumps(serializer.data)))
+    
     #POST http://127.0.0.1:8000/incidents/
     #Override create to ignore the input for status
+    '''Return
+    {
+    "id": 17,
+    "name": "push",
+    "status": "approved",
+    "severity": 2,
+    "time": "2015-10-31T06:17:14Z",
+    "location": "sth",
+    "contact": "98",
+    "type": "fire",
+    "description": "ss",
+    "updates": [],
+    "dispatches": []
+    }
+    '''
     def create(self, request, *args, **kwargs):
         request.data['status'] = 'initiated'
         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
-        self.publish(request)
+        new_incident = Incident.objects.order_by('-id')[0]
+        serializer = self.get_serializer(new_incident)
+        create_syslog(name = "Create an Incident", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
+        self.publish()
         return response
-
+    
+    #PUT http://127.0.0.1:8000/incidents/inci_id/
+    def update(self, request, *args, **kwargs):
+        response = viewsets.ModelViewSet.update(self, request, *args, **kwargs)
+        serializer = self.get_serializer(self.get_object())
+        create_syslog(name = "Update an Incident", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
+        self.publish()
+        return response
 
     #GET http://127.0.0.1:8000/incidents/inci_id/approve/
     #Approve an incident
+    '''Return
+    {
+    "id": 17,
+    "name": "push",
+    "status": "approved",
+    "severity": 2,
+    "time": "2015-10-31T06:17:14Z",
+    "location": "sth",
+    "contact": "98",
+    "type": "fire",
+    "description": "ss",
+    "updates": [],
+    "dispatches": []
+    }
+    '''
     @detail_route(methods=['get'])
     def approve(self, request, pk = None):
         incident = Incident.objects.get(pk = pk)
         incident.status = 'approved'
         incident.save()
+        serializer = self.get_serializer(incident)
+        create_syslog(name = "Approve an Incident", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
+        self.publish()
         self.queryset = Incident.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
 
@@ -44,21 +94,35 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
     #GET http://127.0.0.1:8000/incidents/inci_id/reject/
     #Reject an incident
+    '''Return
+    {
+    "id": 28,
+    "name": "push6",
+    "status": "rejected",
+    "severity": 5,
+    "time": "2015-10-30T16:21:15Z",
+    "location": "swh",
+    "contact": "123",
+    "type": "haze",
+    "description": "NA",
+    "updates": [],
+    "dispatches": []
+    }
+    '''
     @detail_route(methods=['get'])
     def reject(self, request, pk = None):
         incident = Incident.objects.get(pk = pk)
         incident.status = 'rejected'
         incident.save()
+        serializer = self.get_serializer(incident)
+        create_syslog(name = "Reject an Incident", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))        
+        self.publish()
         self.queryset = Incident.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
     
-    def publish(self, request):
-        queryset = Incident.objects.all()
-        serializer = self.get_serializer(queryset, many = True)
-        redis_publisher = RedisPublisher(facility = 'incidents', broadcast = True)
-        redis_publisher.publish_message(RedisMessage(json.dumps(serializer.data)))
 
-    @list_route(methods=['get'])
+
+    '''@list_route(methods=['get'])
     def sync(self, request):
         # Sample code for reading incidents message queue
         redis_publisher = RedisPublisher(facility='incidents', broadcast=True)
@@ -74,9 +138,29 @@ class IncidentViewSet(viewsets.ModelViewSet):
         # message = RedisMessage(json.dumps(message))
         # redis_publisher.publish_message(message)
 
-        return Response(json.loads(message))
+        return Response(json.loads(message))'''
     
     #GET http://127.0.0.1:8000/incidents/types/
+    '''Return
+    [
+    {
+        "value": "haze",
+        "title": "Haze"
+    },
+    {
+        "value": "fire",
+        "title": "Fire"
+    },
+    {
+        "value": "crash",
+        "title": "Crash"
+    },
+    {
+        "value": "dengue",
+        "title": "Dengue"
+    }
+    ]
+    '''
     @list_route(methods=['get'])
     def types(self, request):
         result = []

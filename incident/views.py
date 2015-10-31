@@ -8,12 +8,13 @@ from Communication.outgoingSMS import sendingSMS
 from rest_framework.response import Response
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
+from .notifiers import IncidentMgr
 import json
 import datetime
 from system_log.views import create_syslog
 from django.template.context_processors import request
 
-RECENT_INTERVAL = datetime.timedelta(days=50)
+RECENT_INTERVAL = datetime.timedelta(minutes=50)
 
 def publish_incident():
     queryset = Incident.objects.all()
@@ -179,7 +180,14 @@ class IncidentViewSet(viewsets.ModelViewSet):
         return Response(data = serializer.data)
         
 
-    
+    @list_route(methods=['get'])
+    def test(self, request):
+        from .observers import EmergencyManagerMgr
+        EmergencyManagerMgr()
+        IncidentMgr().notify("1", "2", apple="apples")
+        return Response("testing, haha")
+
+
 class InciUpdateViewSet(viewsets.ModelViewSet):
     queryset = InciUpdate.objects.all()
     serializer_class = InciUpdateSerializer
@@ -282,77 +290,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
 
 
 
-class AbstractNotifier:
-    def __init__(self):
-        self.observers = []
-
-    def register(self, observer):
-        if not observer in self.observers:
-            self.observers.append(observer)
-
-    def unregister(self, observer):
-        if observer in self.observers:
-            self.observers.remove(observer)
-
-    def unregister_all(self):
-        if self.observers:
-            del self.observers[:]
-
-    def notify(self, *args, **kwargs):
-        for observer in self.observers:
-            observer.update(*args, **kwargs)
 
 
-class IncidentMgr(object,AbstractNotifier):
-    _instance = None
 
-    #overwriting the existing __new__() method
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(IncidentMgr, cls).__new__(
-                                cls, *args, **kwargs)
-        return cls._instance
 
-    def recent_incidents(self, timedelta=RECENT_INTERVAL):
-        import datetime
-        now = datetime.datetime.now()
-        cut_off = now - timedelta
-        incidents = Incident.objects.filter(time__gte=cut_off)
-        serializer = IncidentSerializer(incidents, many=True)
-        return serializer.data
-
-class InciUpdateMgr(object,AbstractNotifier):
-    _instance = None
-
-    #overwriting the existing __new__() method
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(InciUpdateMgr, cls).__new__(
-                                cls, *args, **kwargs)
-        return cls._instance
-
-    def recent_updates(self, timedelta=RECENT_INTERVAL):
-        import datetime
-        now = datetime.datetime.now()
-        cut_off = now - timedelta
-        inci_updates = InciUpdate.objects.filter(time__gte=cut_off)
-        serializer = InciUpdateSerializer(inci_updates, many=True)
-        return serializer.data
-
-class DispatchMgr(object,AbstractNotifier):
-    _instance = None
-
-    #overwriting the existing __new__() method
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(DispatchMgr, cls).__new__(
-                                cls, *args, **kwargs)
-        return cls._instance
-
-    def recent_dispatches(self, timedelta=RECENT_INTERVAL):
-        import datetime
-        now = datetime.datetime.now()
-        cut_off = now - timedelta
-        dispatches = Dispatch.objects.filter(time__gte=cut_off)
-        serializer = DispatchSerializer(dispatches, many=True)
-        return serializer.data

@@ -6,7 +6,7 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from django.utils import timezone
 from.media_publishers import MediaPublisherLoader
-from incident.views import IncidentMgr, InciUpdateMgr, DispatchMgr
+from incident.notifiers import IncidentMgr, InciUpdateMgr, DispatchMgr
 
 
 class SocialMediaReportSerializer(serializers.ModelSerializer):

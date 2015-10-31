@@ -173,9 +173,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
     @list_route(methods=['get'])
     def test(self, request):
-        from .observers import EmergencyManagerMgr
-        EmergencyManagerMgr()
-        IncidentMgr().notify("1", "2", apple="apples")
+        IncidentMgr().notify()
         return Response("testing, haha")
 
 

@@ -10,6 +10,14 @@ class InciUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = InciUpdate
         depth = 1
+        
+class InciUpdateWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InciUpdate
+
+class DispatchWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dispatch
 
 class DispatchSerializer(serializers.ModelSerializer):
     class Meta:

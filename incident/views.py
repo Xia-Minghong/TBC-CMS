@@ -1,6 +1,6 @@
 from .models import Incident, InciUpdate, Dispatch
 from .models import inci_type
-from .serializers import IncidentSerializer, InciUpdateSerializer, DispatchSerializer
+from .serializers import IncidentSerializer, InciUpdateSerializer, DispatchSerializer, InciUpdateWriteSerializer, DispatchWriteSerializer
 from agency.models import Agency
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
@@ -216,6 +216,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         request.data['incident'] = kwargs['inci_id']
         request.data['is_approved'] = False
+        self.serializer_class = InciUpdateWriteSerializer
         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
         cur_incident = Incident.objects.get(pk = kwargs['inci_id'])
         cur_incident.severity = request.data['updated_severity']
@@ -262,6 +263,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
     #Regardless of the incident input, it will create a dispatch under inci_id
     def create(self, request, *args, **kwargs):
         request.data['incident'] = kwargs['inci_id']
+        self.serializer_class = DispatchWriteSerializer
         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
         cur_incident = Incident.objects.get(pk = kwargs['inci_id'])
         cur_incident.status = 'dispatched'

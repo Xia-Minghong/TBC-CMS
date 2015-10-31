@@ -128,12 +128,12 @@ class IncidentViewSet(viewsets.ModelViewSet):
     
 
 
-    '''@list_route(methods=['get'])
+    @list_route(methods=['get'])
     def sync(self, request):
         # Sample code for reading incidents message queue
-        redis_publisher = RedisPublisher(facility='incidents', broadcast=True)
+        redis_publisher = RedisPublisher(facility='inciupdates', broadcast=True)
 
-        message = redis_publisher.fetch_message(request, 'incidents')
+        message = redis_publisher.fetch_message(request, 'inciupdates')
         # if the message is empty, replace it with a empty json/dict and convert to a string
         if not message:
             message = json.dumps({})
@@ -144,7 +144,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         # message = RedisMessage(json.dumps(message))
         # redis_publisher.publish_message(message)
 
-        return Response(json.loads(message))'''
+        return Response(json.loads(message))
     
     #GET http://127.0.0.1:8000/incidents/types/
     '''Return

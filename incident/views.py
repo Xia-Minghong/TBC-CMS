@@ -15,15 +15,16 @@ from django.template.context_processors import request
 
 RECENT_INTERVAL = datetime.timedelta(days=50)
 
+def publish_incident():
+    queryset = Incident.objects.all()
+    serializer = IncidentSerializer(queryset, many = True)
+    redis_publisher = RedisPublisher(facility = 'incidents', broadcast = True)
+    redis_publisher.publish_message(RedisMessage(json.dumps(serializer.data)))
+    
+    
 class IncidentViewSet(viewsets.ModelViewSet):
     queryset = Incident.objects.all()
     serializer_class = IncidentSerializer
-    
-    def publish(self):
-        queryset = Incident.objects.all()
-        serializer = self.get_serializer(queryset, many = True)
-        redis_publisher = RedisPublisher(facility = 'incidents', broadcast = True)
-        redis_publisher.publish_message(RedisMessage(json.dumps(serializer.data)))
     
     #POST http://127.0.0.1:8000/incidents/
     #Override create to ignore the input for status
@@ -45,18 +46,18 @@ class IncidentViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         request.data['status'] = 'initiated'
         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
+        publish_incident()
         new_incident = Incident.objects.order_by('-id')[0]
         serializer = self.get_serializer(new_incident)
         create_syslog(name = "Create an Incident", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
-        self.publish()
         return response
     
     #PUT http://127.0.0.1:8000/incidents/inci_id/
     def update(self, request, *args, **kwargs):
         response = viewsets.ModelViewSet.update(self, request, *args, **kwargs)
+        publish_incident()
         serializer = self.get_serializer(self.get_object())
         create_syslog(name = "Update an Incident", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
-        self.publish()
         return response
 
     #GET http://127.0.0.1:8000/incidents/inci_id/approve/
@@ -81,9 +82,9 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident = Incident.objects.get(pk = pk)
         incident.status = 'approved'
         incident.save()
+        publish_incident()
         serializer = self.get_serializer(incident)
         create_syslog(name = "Approve an Incident", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
-        self.publish()
         self.queryset = Incident.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
 
@@ -114,9 +115,9 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident = Incident.objects.get(pk = pk)
         incident.status = 'rejected'
         incident.save()
+        publish_incident()
         serializer = self.get_serializer(incident)
         create_syslog(name = "Reject an Incident", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))        
-        self.publish()
         self.queryset = Incident.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
     
@@ -174,6 +175,12 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     queryset = InciUpdate.objects.all()
     serializer_class = InciUpdateSerializer
     
+    def publish(self):
+        queryset = InciUpdate.objects.all()
+        serializer = self.get_serializer(queryset, many = True)
+        redis_publisher = RedisPublisher(facility = 'inciupdates', broadcast = True)
+        redis_publisher.publish_message(RedisMessage(json.dumps(serializer.data)))
+    
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/
     def list(self, request, *args, **kwargs):
         cur_incident = Incident.objects.get(pk = kwargs['inci_id'])
@@ -192,7 +199,18 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         request.data['incident'] = kwargs['inci_id']
         request.data['is_approved'] = False
-        return viewsets.ModelViewSet.create(self, request, *args, **kwargs)
+        response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
+        cur_incident = Incident.objects.get(pk = kwargs['inci_id'])
+        cur_incident.severity = request.data['updated_severity']
+        cur_incident.save()
+        publish_incident()
+        inci_serializer = IncidentSerializer(cur_incident)
+        create_syslog(name = "Update an Incident via an Incident Update", generator = request.user, description = json.dumps(inci_serializer.data).replace('\"', ''))
+        self.publish()
+        new_inciUpdate = InciUpdate.objects.order_by('-id')[0]
+        serializer = self.get_serializer(new_inciUpdate)
+        create_syslog(name = "Create an Incident Update", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
+        return response
     
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/approve/
     #Approve an incident update specified by inciUpdate_id
@@ -201,6 +219,9 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         inci_update = InciUpdate.objects.get(pk = pk)
         inci_update.is_approved = True
         inci_update.save()
+        self.publish()
+        serializer = self.get_serializer(inci_update)
+        create_syslog(name = "Approve an Incident Update", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
         self.queryset = InciUpdate.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
     
@@ -208,6 +229,12 @@ class DispatchViewSet(viewsets.ModelViewSet):
     queryset = Dispatch.objects.all()
     serializer_class = DispatchSerializer
     
+    def publish(self):
+        queryset = Dispatch.objects.all()
+        serializer = self.get_serializer(queryset, many = True)
+        redis_publisher = RedisPublisher(facility = 'dispatches', broadcast = True)
+        redis_publisher.publish_message(RedisMessage(json.dumps(serializer.data)))
+        
     #GET http://127.0.0.1:8000/incidents/inci_id/dispatches/
     def list(self, request, *args, **kwargs):
         cur_incident = Incident.objects.get(pk = kwargs['inci_id'])
@@ -218,11 +245,18 @@ class DispatchViewSet(viewsets.ModelViewSet):
     #Regardless of the incident input, it will create a dispatch under inci_id
     def create(self, request, *args, **kwargs):
         request.data['incident'] = kwargs['inci_id']
-        incident = Incident.objects.get(pk = kwargs['inci_id'])
-        incident.status = 'dispatched'
-        incident.save()
-        self.sendSMS(request, incident)
-        return viewsets.ModelViewSet.create(self, request, *args, **kwargs)
+        response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
+        cur_incident = Incident.objects.get(pk = kwargs['inci_id'])
+        cur_incident.status = 'dispatched'
+        cur_incident.save()
+        publish_incident()
+        inci_serializer = IncidentSerializer(cur_incident)
+        create_syslog(name = "Dispatch an Incident", generator = request.user, description = json.dumps(inci_serializer.data).replace('\"', ''))
+        new_dispatch = Dispatch.objects.order_by('-id')[0]
+        serializer = self.get_serializer(new_dispatch)
+        create_syslog(name = "Create an Incident Dispatch", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
+        self.sendSMS(request, cur_incident)
+        return response
     
     #GET http://127.0.0.1:8000/incidents/inci_id/dispatches/dispatch_id/
     #Return one dispatch associated with the incident specified by inci_id

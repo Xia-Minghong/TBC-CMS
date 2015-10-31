@@ -17,7 +17,8 @@ class SocialMediaReportSerializer(serializers.ModelSerializer):
 class SocialMediaReportViewSet(viewsets.ModelViewSet):
     queryset = SocialMediaReport.objects.all()
     serializer_class = SocialMediaReportSerializer
-
+    
+    
 
 class PublisherViewSet(viewsets.ModelViewSet):
 

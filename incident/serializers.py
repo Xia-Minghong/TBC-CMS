@@ -9,9 +9,9 @@ class IncidentSerializer(serializers.ModelSerializer):
 class InciUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = InciUpdate
-        #depth = 1
+        depth = 1
 
 class DispatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dispatch
-        #depth = 1
+        depth = 1

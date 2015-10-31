@@ -16,6 +16,7 @@ from django.template.context_processors import request
 
 RECENT_INTERVAL = datetime.timedelta(minutes=50)
 
+#Push all incidents
 def publish_incident():
     queryset = Incident.objects.all()
     serializer = IncidentSerializer(queryset, many = True)
@@ -29,6 +30,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     
     def publish(self):
         publish_incident()
+    
     #POST http://127.0.0.1:8000/incidents/
     #Override create to ignore the input for status
     '''Return
@@ -58,7 +60,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     #PUT http://127.0.0.1:8000/incidents/inci_id/
     def update(self, request, *args, **kwargs):
         response = viewsets.ModelViewSet.update(self, request, *args, **kwargs)
-        publish_incident()
+        self.publish()
         serializer = self.get_serializer(self.get_object())
         create_syslog(name = "Update an Incident", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
         return response
@@ -82,10 +84,10 @@ class IncidentViewSet(viewsets.ModelViewSet):
     '''
     @detail_route(methods=['get'])
     def approve(self, request, pk = None):
-        incident = Incident.objects.get(pk = pk)
+        incident = self.get_object()
         incident.status = 'approved'
         incident.save()
-        publish_incident()
+        self.publish()
         serializer = self.get_serializer(incident)
         create_syslog(name = "Approve an Incident", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
         self.queryset = Incident.objects.all().filter(id = pk)
@@ -115,10 +117,10 @@ class IncidentViewSet(viewsets.ModelViewSet):
     '''
     @detail_route(methods=['get'])
     def reject(self, request, pk = None):
-        incident = Incident.objects.get(pk = pk)
+        incident = self.get_object()
         incident.status = 'rejected'
         incident.save()
-        publish_incident()
+        self.publish()
         serializer = self.get_serializer(incident)
         create_syslog(name = "Reject an Incident", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))        
         self.queryset = Incident.objects.all().filter(id = pk)
@@ -233,7 +235,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     #Approve an incident update specified by inciUpdate_id
     @detail_route(methods=['get'])
     def approve(self, request, inci_id, pk = None):
-        inci_update = InciUpdate.objects.get(pk = pk)
+        inci_update = self.get_object()
         inci_update.is_approved = True
         inci_update.save()
         self.publish()
@@ -269,6 +271,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
         publish_incident()
         inci_serializer = IncidentSerializer(cur_incident)
         create_syslog(name = "Dispatch an Incident", generator = request.user, description = json.dumps(inci_serializer.data).replace('\"', ''))
+        self.publish()
         new_dispatch = Dispatch.objects.order_by('-id')[0]
         serializer = self.get_serializer(new_dispatch)
         create_syslog(name = "Create an Incident Dispatch", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
@@ -287,10 +290,3 @@ class DispatchViewSet(viewsets.ModelViewSet):
         content = "Name: {} Location: {} Description: {} Resources: {}" \
             .format(incident.name, incident.location, incident.description, request.data['resource'])
         sendingSMS(content, agency.contact)
-
-
-
-
-
-
-

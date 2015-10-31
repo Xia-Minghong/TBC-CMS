@@ -10,6 +10,7 @@ from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
 import json
 import datetime
+from django.template.context_processors import request
 
 RECENT_INTERVAL = datetime.timedelta(days=50)
 
@@ -21,7 +22,9 @@ class IncidentViewSet(viewsets.ModelViewSet):
     #Override create to ignore the input for status
     def create(self, request, *args, **kwargs):
         request.data['status'] = 'initiated'
-        return viewsets.ModelViewSet.create(self, request, *args, **kwargs)
+        response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
+        self.publish(request)
+        return response
 
 
     #GET http://127.0.0.1:8000/incidents/inci_id/approve/
@@ -48,6 +51,12 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident.save()
         self.queryset = Incident.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
+    
+    def publish(self, request):
+        queryset = Incident.objects.all()
+        serializer = self.get_serializer(queryset, many = True)
+        redis_publisher = RedisPublisher(facility = 'incidents', broadcast = True)
+        redis_publisher.publish_message(RedisMessage(json.dumps(serializer.data)))
 
     @list_route(methods=['get'])
     def sync(self, request):
@@ -67,6 +76,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
         return Response(json.loads(message))
     
+    #GET http://127.0.0.1:8000/incidents/types/
     @list_route(methods=['get'])
     def types(self, request):
         result = []

@@ -251,7 +251,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many = True)
         redis_publisher = RedisPublisher(facility = 'dispatches', broadcast = True)
         redis_publisher.publish_message(RedisMessage(json.dumps(serializer.data)))
-        
+    
     #GET http://127.0.0.1:8000/incidents/inci_id/dispatches/
     def list(self, request, *args, **kwargs):
         cur_incident = Incident.objects.get(pk = kwargs['inci_id'])

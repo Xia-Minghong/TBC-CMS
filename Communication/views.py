@@ -15,7 +15,10 @@ class SocialMediaReportViewSet(viewsets.ModelViewSet):
     queryset = SocialMediaReport.objects.all()
     serializer_class = SocialMediaReportSerializer
     
-    
+    def create(self, request, *args, **kwargs):
+        response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
+        
+        return response
 
 class PublisherViewSet(viewsets.ModelViewSet):
 

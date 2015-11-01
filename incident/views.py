@@ -13,11 +13,11 @@ import json
 import datetime
 from system_log.views import create_syslog
 from django.template.context_processors import request
-<<<<<<< HEAD
+
 from App.views import publish
-=======
+
 import updatekeys
->>>>>>> branch 'master' of https://github.com/Xia-Minghong/TBC-CMS.git
+
 
 RECENT_INTERVAL = datetime.timedelta(minutes=50)
 

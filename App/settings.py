@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     'rest_framework',
     'agency',
     'users',
+    'updatekeys',
     'twilio',
     'corsheaders',
     'system_log',

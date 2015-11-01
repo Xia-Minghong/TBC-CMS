@@ -42,6 +42,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='incident',
             name='updates',
-            field=models.ManyToManyField(to='agency.Agency', related_name='update+', through='incident.InciUpdate'),
+            field=models.ManyToManyField(to='agency.Agency', related_name='updatekeys+', through='incident.InciUpdate'),
         ),
     ]

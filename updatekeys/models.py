@@ -6,4 +6,4 @@ import agency
 class updatesKeys(models.Model):
     incidentID = models.ForeignKey(incident.models.Incident)
     agencyID = models.ForeignKey(agency.models.Agency)
-    keys = models.CharField()
+    keys = models.CharField(max_length = 50)

@@ -28,7 +28,7 @@ class Incident(models.Model):
     contact = models.CharField(max_length = 50)
     type = models.CharField(max_length = 50, choices = inci_type)
     description = models.TextField(blank = True)
-    updates = models.ManyToManyField(Agency, through = 'InciUpdate', related_name = 'update+')
+    updates = models.ManyToManyField(Agency, through = 'InciUpdate', related_name = 'updatekeys+')
     dispatches = models.ManyToManyField(Agency, through = 'Dispatch', related_name = 'dispatch+')
     
     def __str__(self):

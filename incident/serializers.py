@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Incident, InciUpdate, Dispatch
 
 class IncidentSerializer(serializers.ModelSerializer):
-    #default 'create' and 'update'
+    #default 'create' and 'updatekeys'
     class Meta:
         model = Incident
         

@@ -68,6 +68,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         create_syslog(name = "An Incident <" + new_incident.name + "> Created", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
         return response
     
+    
     #PUT http://127.0.0.1:8000/incidents/inci_id/
     def update(self, request, *args, **kwargs):
         response = viewsets.ModelViewSet.update(self, request, *args, **kwargs)

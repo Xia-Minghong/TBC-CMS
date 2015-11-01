@@ -48,6 +48,7 @@ class Dispatch(models.Model):
     incident = models.ForeignKey(Incident)
     agency = models.ForeignKey(Agency)
     resource = models.TextField()
+    is_approved = models.BooleanField(default = False)
     time = models.DateTimeField('time dispatched', default = django.utils.timezone.now)
     def __str__(self):
         return str(self.incident)

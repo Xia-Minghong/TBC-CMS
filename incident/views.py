@@ -13,7 +13,11 @@ import json
 import datetime
 from system_log.views import create_syslog
 from django.template.context_processors import request
+<<<<<<< HEAD
 from App.views import publish
+=======
+import updatekeys
+>>>>>>> branch 'master' of https://github.com/Xia-Minghong/TBC-CMS.git
 
 RECENT_INTERVAL = datetime.timedelta(minutes=50)
 
@@ -214,14 +218,14 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
     
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/
-    #Return one incident update associated with the incident specified according to its id
+    #Return one incident updatekeys associated with the incident specified according to its id
     def retrieve(self, request, *args, **kwargs):
         cur_incident = Incident.objects.get(pk = kwargs['inci_id'])
         self.queryset = InciUpdate.objects.all().filter(incident = cur_incident)
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
     
     #POST http://127.0.0.1:8000/incidents/inci_id/updates/
-    #Regardless of the incident input, it will create an update under inci_id
+    #Regardless of the incident input, it will create an updatekeys under inci_id
     def create(self, request, *args, **kwargs):
         request.data['incident'] = kwargs['inci_id']
         request.data['is_approved'] = False
@@ -240,7 +244,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         return response
     
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/approve/
-    #Approve an incident update specified by inciUpdate_id
+    #Approve an incident updatekeys specified by inciUpdate_id
     @detail_route(methods=['get'])
     def approve(self, request, inci_id, pk = None):
         inci_update = self.get_object()
@@ -277,14 +281,21 @@ class DispatchViewSet(viewsets.ModelViewSet):
         cur_incident = Incident.objects.get(pk = kwargs['inci_id'])
         cur_incident.status = 'dispatched'
         cur_incident.save()
-        publish_incident()
+        #publish_incident()
+        
+        #url for dispatch
+        specialURL = updatekeys.views.generateKey(kwargs['inci_id'], request.data['agency'])
+
         inci_serializer = IncidentSerializer(cur_incident)
         create_syslog(name = "Dispatch an Incident", generator = request.user, description = json.dumps(inci_serializer.data).replace('\"', ''))
         self.publish()
         new_dispatch = Dispatch.objects.order_by('-id')[0]
         serializer = self.get_serializer(new_dispatch)
         create_syslog(name = "Create an Incident Dispatch", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
-        self.sendSMS(request, cur_incident)
+        
+        
+        
+        self.sendSMS(request, cur_incident,specialURL)
         return response
     
     #GET http://127.0.0.1:8000/incidents/inci_id/dispatches/dispatch_id/
@@ -294,8 +305,8 @@ class DispatchViewSet(viewsets.ModelViewSet):
         self.queryset = Dispatch.objects.all().filter(incident = cur_incident)
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
 
-    def sendSMS(self, request, incident):
+    def sendSMS(self, request, incident,url):
         agency = Agency.objects.get(pk = request.data['agency'])
-        content = "Name: {} Location: {} Description: {} Resources: {}" \
-            .format(incident.name, incident.location, incident.description, request.data['resource'])
+        content = "{} Name: {} Location: {} Description: {} Resources: {}" \
+            .format(url,incident.name, incident.location, incident.description, request.data['resource'])
         sendingSMS(content, agency.contact)

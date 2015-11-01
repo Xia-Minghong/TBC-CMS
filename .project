@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>TBC-CMS</name>
+	<name>TBC-CMS2</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -10,20 +10,9 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
-		<buildCommand>
-			<name>org.eclipse.pde.ManifestBuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
-			<name>org.eclipse.pde.SchemaBuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.python.pydev.django.djangoNature</nature>
 		<nature>org.python.pydev.pythonNature</nature>
-		<nature>org.eclipse.pde.PluginNature</nature>
 	</natures>
 </projectDescription>

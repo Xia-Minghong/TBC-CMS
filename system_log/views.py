@@ -1,16 +1,16 @@
 from rest_framework import viewsets
 from .models import Syslog
-from .serializers import SyslogSerializer
+from .serializers import SyslogReadSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from django.utils import timezone
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
-import json
+from App.views import publish
 
 class SyslogViewSet(viewsets.ModelViewSet):
     queryset = Syslog.objects.all()
-    serializer_class = SyslogSerializer
+    serializer_class = SyslogReadSerializer
     
     #Syslog creation through URL is not allowed
     def create(self, request, *args, **kwargs):
@@ -31,15 +31,14 @@ class SyslogViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
     
     
-def publish():
+def push():
     queryset = Syslog.objects.order_by('-id')[0]
-    serializer = SyslogSerializer(queryset)
-    redis_publisher = RedisPublisher(facility = 'syslogs', broadcast = True)
-    redis_publisher.publish_message(RedisMessage(json.dumps(serializer.data)))
+    serializer = SyslogReadSerializer(queryset)
+    publish(serializer, "syslog")
         
 def create_syslog(name, generator, description):
     syslog = Syslog(name = name, time = timezone.now(), generator = generator, description = description)
     syslog.save()
-    publish()
+    push()
     
     

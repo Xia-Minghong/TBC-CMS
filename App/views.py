@@ -21,7 +21,6 @@ class GroupViewSet(viewsets.ModelViewSet):
     
 def publish(serializer, category):
     message = {}
-    message['category'] = category
-    message['content'] = serializer.data
+    message[category] = serializer.data
     redis_publisher = RedisPublisher(facility = 'pushes', broadcast = True)
     redis_publisher.publish_message(RedisMessage(json.dumps(message)))

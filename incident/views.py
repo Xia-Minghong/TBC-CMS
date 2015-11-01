@@ -30,7 +30,7 @@ def publish_incident():
     
 class IncidentViewSet(viewsets.ModelViewSet):
     queryset = Incident.objects.all()
-    serializer_class = IncidentSerializer()
+    serializer_class = IncidentSerializer
     
     def push(self):
         publish_incident()
@@ -68,6 +68,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     '''
     def create(self, request, *args, **kwargs):
         request.data['status'] = 'initiated'
+
         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
         self.push()
         new_incident = Incident.objects.order_by('-id')[0]

@@ -12,8 +12,6 @@ class AbstractNotifier(object):
             self.observers.append(observer)
             print("==========" + str(observer) + "is registerd at" + str(self) + "=========")
             print("==========" + str(len(self.observers)) + " observers have now registered at" + str(self) + "=======")
-        else:
-            print("=========lololololol, fail==========")
 
 
     def unregister(self, observer):

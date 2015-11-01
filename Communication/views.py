@@ -37,7 +37,7 @@ class PublisherViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'])
     def repeatedly_send(self,request, *args, **kwargs):
         type = kwargs['pk']
-        self.periodically_publish(type)
+        ReportMgr.periodically_publish(type)
         return Response("haha")
 
 

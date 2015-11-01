@@ -32,6 +32,9 @@ class EmergencyManagerMgr(AbstractObserver):
     def update(self, *args, **kwargs):
         notifier = kwargs["notifier"]
         print("\n================" + str(self) + "is notified by " + str(notifier) + "================\n")
+        '''
+        Please add in what happens after the system notified EmergencyManagerMgr something changed
+        '''
 
 #####Instantiate EmergencyManagerMgr right away
 EmergencyManagerMgr()

@@ -1,6 +1,6 @@
 from .models import Incident, InciUpdate, Dispatch
 from .models import inci_type
-from .serializers import IncidentSerializer, InciUpdateSerializer, DispatchSerializer, InciUpdateWriteSerializer, DispatchWriteSerializer
+from .serializers import IncidentSerializer, InciUpdateSerializer, DispatchSerializer, InciUpdateWriteSerializer, DispatchWriteSerializer, IncidentRetrieveSerializer
 from agency.models import Agency
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
@@ -34,7 +34,14 @@ class IncidentViewSet(viewsets.ModelViewSet):
     
     def push(self):
         publish_incident()
-    
+
+    #Get http://127.0.0.1:8000/incidents/id/
+    def retrieve(self, request, *args, **kwargs):
+        incident = self.get_object()
+        serializer = IncidentRetrieveSerializer(incident)
+        return Response(serializer.data)
+
+
     #POST http://127.0.0.1:8000/incidents/
     #Override create to ignore the input for status
     '''Return

@@ -19,21 +19,11 @@ class IncidentSerializer(serializers.ModelSerializer):
         depth = 0
 
 class IncidentRetrieveSerializer(serializers.ModelSerializer):
-    #default 'create' and 'updatekeys'
-
-    # def __init__(self, *args, **kwargs):
-    #     super(IncidentSerializer, self).__init__(
-    #                             self, *args, **kwargs)
-    #     try:
-    #         self.Meta.depth = kwargs["depth"]
-    #     except KeyError:
-    #         self.Meta.depth = 0
-
 
     class Meta:
         model = Incident
         fields = ('id', 'name', 'status', 'severity', 'time', 'location', 'longitude', 'latitude', 'contact', 'contact', 'type', 'description', 'inciupdate_set', 'dispatch_set')
-        depth = 0
+        depth = 1
         
 class InciUpdateSerializer(serializers.ModelSerializer):
     class Meta:

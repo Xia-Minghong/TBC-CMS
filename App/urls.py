@@ -22,6 +22,7 @@ from Communication.views import PublisherViewSet
 from incident.views import IncidentViewSet, InciUpdateViewSet, DispatchViewSet
 from system_log.views import SyslogViewSet
 from . import views
+import update
 
 router = DefaultRouter()
 router.register(r'agencies', AgencyViewSet)
@@ -29,6 +30,7 @@ router.register(r'incidents', IncidentViewSet)
 router.register(r'publishers', PublisherViewSet)
 router.register(r'incidents/(?P<inci_id>[0-9]+)/updates', InciUpdateViewSet)
 router.register(r'incidents/(?P<inci_id>[0-9]+)/dispatches', DispatchViewSet)
+router.register(r'update',update.views.UpdatesViewSets)
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
 router.register(r'syslogs', SyslogViewSet)

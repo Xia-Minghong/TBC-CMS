@@ -275,6 +275,9 @@ class DispatchViewSet(viewsets.ModelViewSet):
         new_dispatch = Dispatch.objects.order_by('-id')[0]
         serializer = self.get_serializer(new_dispatch)
         create_syslog(name = "Create an Incident Dispatch", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
+        
+        
+        
         self.sendSMS(request, cur_incident)
         return response
     

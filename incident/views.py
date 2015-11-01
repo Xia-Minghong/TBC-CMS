@@ -37,13 +37,11 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
     #Get http://127.0.0.1:8000/incidents/id/
     def retrieve(self, request, *args, **kwargs):
-        incident = self.get_object()
         self.serializer_class = IncidentRetrieveSerializer
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
 
     #GET http://127.0.0.1:8000/incidents/
     def list(self, request, *args, **kwargs):
-        incidents = Incident.objects.all()
         self.serializer_class = IncidentListSerializer
         return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
         # serializer = IncidentSerializer(incidents, many = True)

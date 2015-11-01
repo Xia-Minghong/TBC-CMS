@@ -4,8 +4,6 @@ from .serializers import SyslogReadSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from django.utils import timezone
-from ws4redis.publisher import RedisPublisher
-from ws4redis.redis_store import RedisMessage
 from App.views import publish
 
 class SyslogViewSet(viewsets.ModelViewSet):

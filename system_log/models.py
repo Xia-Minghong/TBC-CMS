@@ -5,4 +5,4 @@ class Syslog(models.Model):
     name = models.CharField(max_length = 50)
     time = models.DateTimeField('time generated')
     generator = models.CharField(max_length = 50)
-    description = models.TextField()
+    #description = models.TextField()

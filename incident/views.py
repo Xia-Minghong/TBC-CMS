@@ -64,12 +64,10 @@ class IncidentViewSet(viewsets.ModelViewSet):
     '''
     def create(self, request, *args, **kwargs):
         request.data['status'] = 'initiated'
-
         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
         self.push(request)
         new_incident = Incident.objects.order_by('-id')[0]
-        serializer = self.get_serializer(new_incident)
-        create_syslog(name = "An Incident <" + new_incident.name + "> Created", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
+        create_syslog(name = "A Crisis Report<" + new_incident.name + "> Created", generator = request.user)
         return response
     
     
@@ -77,8 +75,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         response = viewsets.ModelViewSet.update(self, request, *args, **kwargs)
         self.push(request)
-        serializer = self.get_serializer(self.get_object())
-        create_syslog(name = "An Incident <" + self.get_object().name + "> Updated", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
+        create_syslog(name = "A Crisis <" + self.get_object().name + "> Updated", generator = request.user)
         return response
 
     #GET http://127.0.0.1:8000/incidents/inci_id/approve/
@@ -104,8 +101,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident.status = 'approved'
         incident.save()
         self.push(request)
-        serializer = self.get_serializer(incident)
-        create_syslog(name = "An Incident <" + incident.name + "> Approved", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
+        create_syslog(name = "A Crisis Report <" + incident.name + "> Approved", generator = request.user)
         self.queryset = Incident.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
 
@@ -137,8 +133,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident.status = 'rejected'
         incident.save()
         self.push(request)
-        serializer = self.get_serializer(incident)
-        create_syslog(name = "An Incident <" + incident.name + "> Rejected", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))        
+        create_syslog(name = "A Crisis Report <" + incident.name + "> Rejected", generator = request.user)        
         self.queryset = Incident.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
     
@@ -242,12 +237,9 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         cur_incident.severity = request.data['updated_severity']
         cur_incident.save()
         publish_incident(request)
-        inci_serializer = IncidentSerializer(cur_incident)
-        create_syslog(name = "An Incident <" + cur_incident.name + "> Updated", generator = request.user, description = json.dumps(inci_serializer.data).replace('\"', ''))
+        create_syslog(name = "A Crisis <" + cur_incident.name + "> Updated", generator = request.user)
         self.push(request)
-        new_inciUpdate = InciUpdate.objects.order_by('-id')[0]
-        serializer = self.get_serializer(new_inciUpdate)
-        create_syslog(name = "An Incident Update for <" + cur_incident.name + "> Created", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
+        create_syslog(name = "A Crisis Update for <" + cur_incident.name + "> Created", generator = request.user)
         return response
     
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/approve/
@@ -258,8 +250,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         inci_update.is_approved = True
         inci_update.save()
         self.push(request)
-        serializer = self.get_serializer(inci_update)
-        create_syslog(name = "An Incident Update for <" + inci_update.incident.name + "> Approved", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
+        create_syslog(name = "A Crisis Update for <" + inci_update.incident.name + "> Approved", generator = request.user)
         self.queryset = InciUpdate.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
     
@@ -307,16 +298,10 @@ class DispatchViewSet(viewsets.ModelViewSet):
         #url for dispatch
         specialURL = updatekeys.views.generateKey(kwargs['inci_id'], request.data['agency'])
 
-        inci_serializer = IncidentSerializer(cur_incident)
-        create_syslog(name = "An Incident <" + cur_incident.name + "> Dispatched", generator = request.user, description = json.dumps(inci_serializer.data).replace('\"', ''))
+        create_syslog(name = "A Crisis <" + cur_incident.name + "> Dispatched", generator = request.user)
         self.publish()
-        new_dispatch = Dispatch.objects.order_by('-id')[0]
-        serializer = self.get_serializer(new_dispatch)
-        create_syslog(name = "An Incident Dispatch for <" + cur_incident.name + "> Created", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
-        
-        
-        
-        self.sendSMS(request, cur_incident,specialURL)
+        create_syslog(name = "A Crisis Dispatch for <" + cur_incident.name + "> Created", generator = request.user)
+        self.sendSMS(request, cur_incident, specialURL)
         return response
     
     #GET http://127.0.0.1:8000/incidents/inci_id/dispatches/dispatch_id/

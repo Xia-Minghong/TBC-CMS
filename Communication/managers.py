@@ -36,11 +36,12 @@ class ReportMgr:
 
     def generate_message(self):
         import time
+        from incident.views import RECENT_INTERVAL
         #localtime = time.asctime( time.localtime(time.time()) )
         #localtime = timezone.localtime(timezone.now())
-        incidents_data = IncidentMgr().recent_incidents()
-        updates_data = InciUpdateMgr().recent_updates()
-        dispatches_data = DispatchMgr().recent_dispatches()
+        incidents_data = IncidentMgr().recent_incidents(RECENT_INTERVAL)
+        updates_data = InciUpdateMgr().recent_updates(RECENT_INTERVAL)
+        dispatches_data = DispatchMgr().recent_dispatches(RECENT_INTERVAL)
         message = 'The testing is successful!!!\nTime tested: ' + time.ctime()
 
         message += ("\n\nRecent Incidents\n====================")

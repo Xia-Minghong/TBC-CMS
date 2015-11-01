@@ -31,13 +31,13 @@ class PublisherViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'])
     def send(self,request, *args, **kwargs):
         type = kwargs['pk']
-        return Response(ReportMgr.publish(type))
+        return Response(ReportMgr().publish(type))
 
     #GET http://127.0.0.1:8000/publishers/type/repeatedly_send/
     @detail_route(methods=['get'])
     def repeatedly_send(self,request, *args, **kwargs):
         type = kwargs['pk']
-        ReportMgr.periodically_publish(type)
+        ReportMgr().periodically_publish(type)
         return Response("haha")
 
 

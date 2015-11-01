@@ -23,4 +23,5 @@ def publish(serializer, category):
     message = {}
     message[category] = serializer.data
     redis_publisher = RedisPublisher(facility = 'pushes', broadcast = True)
+    message.append(redis_publisher.fetch_message( None , 'pushes'))
     redis_publisher.publish_message(RedisMessage(json.dumps(message)))

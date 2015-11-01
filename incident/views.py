@@ -25,7 +25,7 @@ RECENT_INTERVAL = datetime.timedelta(minutes=50)
 def publish_incident(request):
     queryset = Incident.objects.all()
     serializer = IncidentSerializer(queryset, many = True)
-    publish(serializer, "incidents")
+    publish(serializer, "incidents", request)
     
     
 class IncidentViewSet(viewsets.ModelViewSet):
@@ -219,7 +219,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     def push(self, request):
         queryset = InciUpdate.objects.all()
         serializer = self.get_serializer(queryset, many = True)
-        publish(serializer, "updates")
+        publish(serializer, "updates", request)
     
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/
     def list(self, request, *args, **kwargs):
@@ -288,7 +288,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
     def push(self, request):
         queryset = Dispatch.objects.all()
         serializer = self.get_serializer(queryset, many = True)
-        publish(serializer, "dispatches")
+        publish(serializer, "dispatches", request)
     
     #GET http://127.0.0.1:8000/incidents/inci_id/dispatches/
     def list(self, request, *args, **kwargs):

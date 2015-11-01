@@ -34,8 +34,8 @@ def push():
     serializer = SyslogReadSerializer(queryset)
     publish(serializer, "syslog")
         
-def create_syslog(name, generator, description):
-    syslog = Syslog(name = name, time = timezone.now(), generator = generator, description = description)
+def create_syslog(name, generator):
+    syslog = Syslog(name = name, time = timezone.now(), generator = generator)
     syslog.save()
     push()
     

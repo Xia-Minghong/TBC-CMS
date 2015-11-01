@@ -1,4 +1,3 @@
-__author__ = 'WhiteHat'
 from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
@@ -19,8 +18,9 @@ class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
     
-def publish(serializer, category):
+def publish(serializer, category, request):
     message = {}
     message[category] = serializer.data
     redis_publisher = RedisPublisher(facility = 'pushes', broadcast = True)
+    message.update(redis_publisher.fetch_message( request , 'pushes'))
     redis_publisher.publish_message(RedisMessage(json.dumps(message)))

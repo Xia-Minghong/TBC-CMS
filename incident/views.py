@@ -1,6 +1,6 @@
 from .models import Incident, InciUpdate, Dispatch
 from .models import inci_type
-from .serializers import IncidentSerializer, InciUpdateSerializer, DispatchSerializer, InciUpdateWriteSerializer, DispatchWriteSerializer, IncidentRetrieveSerializer
+from .serializers import *
 from agency.models import Agency
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
@@ -22,25 +22,32 @@ import updatekeys
 RECENT_INTERVAL = datetime.timedelta(minutes=50)
 
 #Push all incidents
-def publish_incident():
+def publish_incident(request):
     queryset = Incident.objects.all()
     serializer = IncidentSerializer(queryset, many = True)
-    publish(serializer, "incidents")
+    publish(serializer, "incidents", request)
     
     
 class IncidentViewSet(viewsets.ModelViewSet):
     queryset = Incident.objects.all()
     serializer_class = IncidentSerializer
     
-    def push(self):
-        publish_incident()
+    def push(self, request):
+        publish_incident(request)
 
     #Get http://127.0.0.1:8000/incidents/id/
     def retrieve(self, request, *args, **kwargs):
         incident = self.get_object()
-        serializer = IncidentRetrieveSerializer(incident)
-        return Response(serializer.data)
+        self.serializer_class = IncidentRetrieveSerializer
+        return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
 
+    #GET http://127.0.0.1:8000/incidents/
+    def list(self, request, *args, **kwargs):
+        incidents = Incident.objects.all()
+        self.serializer_class = IncidentListSerializer
+        return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
+        # serializer = IncidentSerializer(incidents, many = True)
+        # return Response(serializer.data)
 
     #POST http://127.0.0.1:8000/incidents/
     #Override create to ignore the input for status
@@ -61,8 +68,9 @@ class IncidentViewSet(viewsets.ModelViewSet):
     '''
     def create(self, request, *args, **kwargs):
         request.data['status'] = 'initiated'
+
         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
-        self.push()
+        self.push(request)
         new_incident = Incident.objects.order_by('-id')[0]
         serializer = self.get_serializer(new_incident)
         create_syslog(name = "An Incident <" + new_incident.name + "> Created", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
@@ -72,7 +80,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     #PUT http://127.0.0.1:8000/incidents/inci_id/
     def update(self, request, *args, **kwargs):
         response = viewsets.ModelViewSet.update(self, request, *args, **kwargs)
-        self.push()
+        self.push(request)
         serializer = self.get_serializer(self.get_object())
         create_syslog(name = "An Incident <" + self.get_object().name + "> Updated", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
         return response
@@ -99,7 +107,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident = self.get_object()
         incident.status = 'approved'
         incident.save()
-        self.push()
+        self.push(request)
         serializer = self.get_serializer(incident)
         create_syslog(name = "An Incident <" + incident.name + "> Approved", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
         self.queryset = Incident.objects.all().filter(id = pk)
@@ -132,7 +140,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident = self.get_object()
         incident.status = 'rejected'
         incident.save()
-        self.push()
+        self.push(request)
         serializer = self.get_serializer(incident)
         create_syslog(name = "An Incident <" + incident.name + "> Rejected", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))        
         self.queryset = Incident.objects.all().filter(id = pk)
@@ -209,10 +217,10 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     queryset = InciUpdate.objects.all()
     serializer_class = InciUpdateSerializer
     
-    def push(self):
+    def push(self, request):
         queryset = InciUpdate.objects.all()
         serializer = self.get_serializer(queryset, many = True)
-        publish(serializer, "updates")
+        publish(serializer, "updates", request)
     
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/
     def list(self, request, *args, **kwargs):
@@ -237,10 +245,10 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         cur_incident = Incident.objects.get(pk = kwargs['inci_id'])
         cur_incident.severity = request.data['updated_severity']
         cur_incident.save()
-        publish_incident()
+        publish_incident(request)
         inci_serializer = IncidentSerializer(cur_incident)
         create_syslog(name = "An Incident <" + cur_incident.name + "> Updated", generator = request.user, description = json.dumps(inci_serializer.data).replace('\"', ''))
-        self.push() 
+        self.push(request)
         new_inciUpdate = InciUpdate.objects.order_by('-id')[0]
         serializer = self.get_serializer(new_inciUpdate)
         create_syslog(name = "An Incident Update for <" + cur_incident.name + "> Created", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
@@ -253,7 +261,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         inci_update = self.get_object()
         inci_update.is_approved = True
         inci_update.save()
-        self.push()
+        self.push(request)
         serializer = self.get_serializer(inci_update)
         create_syslog(name = "An Incident Update for <" + inci_update.incident.name + "> Approved", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
         self.queryset = InciUpdate.objects.all().filter(id = pk)
@@ -278,10 +286,10 @@ class DispatchViewSet(viewsets.ModelViewSet):
         dispatch = Dispatch(incident = incident, agency = agency, resource = resource, time = timezone.now())
         #serializer = '''
     
-    def push(self):
+    def push(self, request):
         queryset = Dispatch.objects.all()
         serializer = self.get_serializer(queryset, many = True)
-        publish(serializer, "dispatches")
+        publish(serializer, "dispatches", request)
     
     #GET http://127.0.0.1:8000/incidents/inci_id/dispatches/
     def list(self, request, *args, **kwargs):
@@ -298,8 +306,8 @@ class DispatchViewSet(viewsets.ModelViewSet):
         cur_incident = Incident.objects.get(pk = kwargs['inci_id'])
         cur_incident.status = 'dispatched'
         cur_incident.save()
-        publish_incident()
-        
+        publish_incident(request)
+
         #url for dispatch
         specialURL = updatekeys.views.generateKey(kwargs['inci_id'], request.data['agency'])
 
@@ -326,4 +334,5 @@ class DispatchViewSet(viewsets.ModelViewSet):
         agency = Agency.objects.get(pk = request.data['agency'])
         content = "{} Name: {} Location: {} Description: {} Resources: {}" \
             .format(url,incident.name, incident.location, incident.description, request.data['resource'])
+        # from incident.
         sendingSMS(content, agency.contact)

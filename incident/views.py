@@ -180,6 +180,12 @@ class IncidentViewSet(viewsets.ModelViewSet):
         queryset = InciUpdate.objects.all().order_by('-time')
         serializer = InciUpdateSerializer(queryset, many = True)
         return Response(data = serializer.data)
+    
+    @list_route(methods=['get'])
+    def alldispatches(self, request):
+        queryset = Dispatch.objects.all().order_by('-time')
+        serializer = DispatchSerializer(queryset, many = True)
+        return Response(data = serializer.data)
         
 
     @list_route(methods=['get'])

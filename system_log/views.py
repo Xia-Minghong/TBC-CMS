@@ -32,8 +32,8 @@ class SyslogViewSet(viewsets.ModelViewSet):
     
     
 def publish():
-    queryset = Syslog.objects.order_by('-time')
-    serializer = SyslogSerializer(queryset, many = True)
+    queryset = Syslog.objects.order_by('-id')[0]
+    serializer = SyslogSerializer(queryset)
     redis_publisher = RedisPublisher(facility = 'syslogs', broadcast = True)
     redis_publisher.publish_message(RedisMessage(json.dumps(serializer.data)))
         

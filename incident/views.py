@@ -13,6 +13,7 @@ import json
 import datetime
 from system_log.views import create_syslog
 from django.template.context_processors import request
+from App.views import publish
 
 RECENT_INTERVAL = datetime.timedelta(minutes=50)
 
@@ -28,8 +29,10 @@ class IncidentViewSet(viewsets.ModelViewSet):
     queryset = Incident.objects.all()
     serializer_class = IncidentSerializer
     
-    def publish(self):
-        publish_incident()
+    def push(self):
+        queryset = Incident.objects.all()
+        serializer = IncidentSerializer(queryset, many = True)
+        publish(serializer, "incident")
     
     #POST http://127.0.0.1:8000/incidents/
     #Override create to ignore the input for status
@@ -51,7 +54,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         request.data['status'] = 'initiated'
         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
-        self.publish()
+        self.push()
         new_incident = Incident.objects.order_by('-id')[0]
         serializer = self.get_serializer(new_incident)
         create_syslog(name = "Create an Incident", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
@@ -60,7 +63,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     #PUT http://127.0.0.1:8000/incidents/inci_id/
     def update(self, request, *args, **kwargs):
         response = viewsets.ModelViewSet.update(self, request, *args, **kwargs)
-        self.publish()
+        self.push()
         serializer = self.get_serializer(self.get_object())
         create_syslog(name = "Update an Incident", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
         return response
@@ -87,7 +90,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident = self.get_object()
         incident.status = 'approved'
         incident.save()
-        self.publish()
+        self.push()
         serializer = self.get_serializer(incident)
         create_syslog(name = "Approve an Incident", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
         self.queryset = Incident.objects.all().filter(id = pk)
@@ -120,7 +123,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident = self.get_object()
         incident.status = 'rejected'
         incident.save()
-        self.publish()
+        self.push()
         serializer = self.get_serializer(incident)
         create_syslog(name = "Reject an Incident", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))        
         self.queryset = Incident.objects.all().filter(id = pk)

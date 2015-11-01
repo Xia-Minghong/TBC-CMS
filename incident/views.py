@@ -13,7 +13,7 @@ import json
 import datetime
 from system_log.views import create_syslog
 from django.template.context_processors import request
-
+from django.utils import timezone
 from App.views import publish
 
 import updatekeys
@@ -58,7 +58,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         self.push()
         new_incident = Incident.objects.order_by('-id')[0]
         serializer = self.get_serializer(new_incident)
-        create_syslog(name = "Create an Incident <" + new_incident.name + ">", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
+        create_syslog(name = "An Incident <" + new_incident.name + "> Created", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
         return response
     
     #PUT http://127.0.0.1:8000/incidents/inci_id/
@@ -66,7 +66,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         response = viewsets.ModelViewSet.update(self, request, *args, **kwargs)
         self.push()
         serializer = self.get_serializer(self.get_object())
-        create_syslog(name = "Update an Incident <" + self.get_object().name + ">", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
+        create_syslog(name = "An Incident <" + self.get_object().name + "> Updated", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
         return response
 
     #GET http://127.0.0.1:8000/incidents/inci_id/approve/
@@ -93,7 +93,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident.save()
         self.push()
         serializer = self.get_serializer(incident)
-        create_syslog(name = "Approve an Incident <" + incident.name + ">", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
+        create_syslog(name = "An Incident <" + incident.name + "> Approved", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
         self.queryset = Incident.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
 
@@ -126,7 +126,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident.save()
         self.push()
         serializer = self.get_serializer(incident)
-        create_syslog(name = "Reject an Incident <" + incident.name + ">", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))        
+        create_syslog(name = "An Incident <" + incident.name + "> Rejected", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))        
         self.queryset = Incident.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
     
@@ -231,11 +231,11 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         cur_incident.save()
         publish_incident()
         inci_serializer = IncidentSerializer(cur_incident)
-        create_syslog(name = "Update an Incident <" + cur_incident.name + ">", generator = request.user, description = json.dumps(inci_serializer.data).replace('\"', ''))
+        create_syslog(name = "An Incident <" + cur_incident.name + "> Updated", generator = request.user, description = json.dumps(inci_serializer.data).replace('\"', ''))
         self.push() 
         new_inciUpdate = InciUpdate.objects.order_by('-id')[0]
         serializer = self.get_serializer(new_inciUpdate)
-        create_syslog(name = "Create an Incident Update for <" + cur_incident.name + ">", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
+        create_syslog(name = "An Incident Update for <" + cur_incident.name + "> Created", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
         return response
     
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/approve/
@@ -247,13 +247,28 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         inci_update.save()
         self.push()
         serializer = self.get_serializer(inci_update)
-        create_syslog(name = "Approve an Incident Update for <" + inci_update.incident.name + ">", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
+        create_syslog(name = "An Incident Update for <" + inci_update.incident.name + "> Approved", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
         self.queryset = InciUpdate.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
     
 class DispatchViewSet(viewsets.ModelViewSet):
     queryset = Dispatch.objects.all()
     serializer_class = DispatchSerializer
+    
+    '''@classmethod
+    def propose_dispatch(cls, incident):
+        agency = Agency.objects.order_by('?')[0]
+        resource = ""
+        if incident.type == 'haze':
+            resource = "N95 Distributor, Water Dispenser"
+        elif incident.type == 'fire':
+            resource = "Fire Engine, Ambulance"
+        elif incident.type == 'crash':
+            resource = "Police Car, Ambulance"
+        elif incident.type == 'dengue':
+            resource = "Ambulance"
+        dispatch = Dispatch(incident = incident, agency = agency, resource = resource, time = timezone.now())
+        #serializer = '''
     
     def push(self):
         queryset = Dispatch.objects.all()
@@ -281,11 +296,11 @@ class DispatchViewSet(viewsets.ModelViewSet):
         specialURL = updatekeys.views.generateKey(kwargs['inci_id'], request.data['agency'])
 
         inci_serializer = IncidentSerializer(cur_incident)
-        create_syslog(name = "Dispatch an Incident <" + cur_incident.name + ">", generator = request.user, description = json.dumps(inci_serializer.data).replace('\"', ''))
+        create_syslog(name = "An Incident <" + cur_incident.name + "> Dispatched", generator = request.user, description = json.dumps(inci_serializer.data).replace('\"', ''))
         self.publish()
         new_dispatch = Dispatch.objects.order_by('-id')[0]
         serializer = self.get_serializer(new_dispatch)
-        create_syslog(name = "Create an Incident Dispatch for <" + cur_incident.name + ">", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
+        create_syslog(name = "An Incident Dispatch for <" + cur_incident.name + "> Created", generator = request.user, description = json.dumps(serializer.data).replace('\"', ''))
         
         
         

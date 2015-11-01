@@ -30,7 +30,7 @@ class IncidentRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = Incident
         fields = ('id', 'name', 'status', 'severity', 'time', 'location', 'longitude', 'latitude', 'contact', 'contact', 'type', 'description', 'inciupdate_set', 'dispatch_set')
-        depth = 1
+        depth = 2
         
 class InciUpdateSerializer(serializers.ModelSerializer):
     class Meta:

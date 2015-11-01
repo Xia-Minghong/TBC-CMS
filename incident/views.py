@@ -1,6 +1,6 @@
 from .models import Incident, InciUpdate, Dispatch
 from .models import inci_type
-from .serializers import IncidentSerializer, InciUpdateSerializer, DispatchSerializer, InciUpdateWriteSerializer, DispatchWriteSerializer, IncidentRetrieveSerializer
+from .serializers import *
 from agency.models import Agency
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
@@ -30,7 +30,7 @@ def publish_incident():
     
 class IncidentViewSet(viewsets.ModelViewSet):
     queryset = Incident.objects.all()
-    serializer_class = IncidentSerializer
+    serializer_class = IncidentSerializer()
     
     def push(self):
         publish_incident()
@@ -41,6 +41,11 @@ class IncidentViewSet(viewsets.ModelViewSet):
         serializer = IncidentRetrieveSerializer(incident)
         return Response(serializer.data)
 
+    #GET http://127.0.0.1:8000/incidents/
+    def list(self, request, *args, **kwargs):
+        incidents = Incident.objects.all()
+        serializer = IncidentListSerializer(incidents, many = True)
+        return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
 
     #POST http://127.0.0.1:8000/incidents/
     #Override create to ignore the input for status
@@ -298,7 +303,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
         cur_incident.status = 'dispatched'
         cur_incident.save()
         publish_incident()
-        
+
         #url for dispatch
         specialURL = updatekeys.views.generateKey(kwargs['inci_id'], request.data['agency'])
 

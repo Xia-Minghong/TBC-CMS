@@ -1,7 +1,14 @@
 from rest_framework import serializers
 from .models import Incident, InciUpdate, Dispatch
 
+
 class IncidentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Incident
+        depth = 0
+
+class IncidentListSerializer(serializers.ModelSerializer):
     #default 'create' and 'updatekeys'
 
     # def __init__(self, *args, **kwargs):

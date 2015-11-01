@@ -35,7 +35,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     def push(self, request):
         publish_incident(request)
 
-    #Get http://127.0.0.1:8000/incidents/id/
+    #GET http://127.0.0.1:8000/incidents/id/
     def retrieve(self, request, *args, **kwargs):
         self.serializer_class = IncidentRetrieveSerializer
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
@@ -44,8 +44,6 @@ class IncidentViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         self.serializer_class = IncidentListSerializer
         return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
-        # serializer = IncidentSerializer(incidents, many = True)
-        # return Response(serializer.data)
 
     #POST http://127.0.0.1:8000/incidents/
     #Override create to ignore the input for status

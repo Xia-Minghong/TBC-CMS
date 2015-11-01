@@ -301,15 +301,32 @@ class DispatchViewSet(viewsets.ModelViewSet):
         create_syslog(name = "A Crisis <" + cur_incident.name + "> Dispatched", generator = request.user)
         self.publish()
         create_syslog(name = "A Crisis Dispatch for <" + cur_incident.name + "> Created", generator = request.user)
-        self.sendSMS(request, cur_incident, specialURL)
+
+        # self.sendSMS(request, cur_incident,specialURL)
+        from Communication.managers import DispatchSmsMgr
+        DispatchSmsMgr().publish(self.get_object(), type="SmsPublisher")
         return response
-    
+
     #GET http://127.0.0.1:8000/incidents/inci_id/dispatches/dispatch_id/
     #Return one dispatch associated with the incident specified by inci_id
     def retrieve(self, request, *args, **kwargs):
         cur_incident = Incident.objects.get(pk = kwargs['inci_id'])
         self.queryset = Dispatch.objects.all().filter(incident = cur_incident)
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
+
+    #GET http://127.0.0.1:8000/incidents/inci_id/updates/dispatch_id/approve/
+    #Approve an incident updatekeys specified by inciUpdate_id
+    @detail_route(methods=['get'])
+    def approve(self, request, inci_id, pk = None):
+        dispatch = self.get_object()
+        dispatch.is_approved = True
+        dispatch.save()
+        # self.push(request)
+        # create_syslog(name = "A Crisis Update for <" + dispatch.incident.name + "> Approved", generator = request.user)
+        from .notifiers import DispatchMgr
+        DispatchMgr().notify(object=dispatch)
+        self.queryset = InciUpdate.objects.all().filter(id = pk)
+        return viewsets.ModelViewSet.retrieve(self, request)
 
     def sendSMS(self, request, incident,url):
         agency = Agency.objects.get(pk = request.data['agency'])

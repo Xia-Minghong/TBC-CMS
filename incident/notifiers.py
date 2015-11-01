@@ -22,10 +22,10 @@ class AbstractNotifier(object):
         if self.observers:
             del self.observers[:]
 
-    def notify(self, *args, **kwargs):
+    def notify(self, object, *args, **kwargs):
         print("==========" + str(self) + " is notifying " + str(len(self.observers)) + " observers=========")
         for observer in self.observers:
-            observer.update(*args, notifier=self, **kwargs)
+            observer.update(notifier=self, object=object, *args, **kwargs)
             print("==========" + str(self) + " notified " + str(observer) + "=========")
 
 

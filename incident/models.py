@@ -42,7 +42,7 @@ class InciUpdate(models.Model):
     description = models.TextField()
     time = models.DateTimeField('time updated', default = django.utils.timezone.now)
     def __str__(self):
-        return str(self.incident)
+        return "Incident: " + str(self.incident) + ",Agency: " + str(self.agency)
     
 class Dispatch(models.Model):
     incident = models.ForeignKey(Incident)
@@ -51,4 +51,4 @@ class Dispatch(models.Model):
     is_approved = models.BooleanField(default = False)
     time = models.DateTimeField('time dispatched', default = django.utils.timezone.now)
     def __str__(self):
-        return str(self.incident)
+        return "Incident: " + str(self.incident) + ",Agency: " + str(self.agency)

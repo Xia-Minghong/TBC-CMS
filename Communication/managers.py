@@ -22,8 +22,7 @@ class SocialMediaReportMgr(AbstractObserver):
             DispatchMgr().register(cls._instance)
         return cls._instance
 
-    def update(self, *args, **kwargs):
-        notifier = kwargs["notifier"]
+    def update(self, notifier, object, *args, **kwargs):
         print("\n================" + str(self) + "is notified by " + str(notifier) + "================\n")
 
 #####Instantiate SocialMediaReportMgr right away
@@ -89,3 +88,37 @@ class ReportMgr:
         threading.Timer(self.TIME_INTERVAL, lambda:self.periodically_publish(type)).start()
         message = self.publish(type)
         print("**********************\n" + time.ctime() + '\n' + message + "\n*********************")
+
+class DispatchSmsMgr(AbstractObserver):
+
+    _instance = None
+
+    #overwriting the existing __new__() method
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(DispatchSmsMgr, cls).__new__(
+                                cls, *args, **kwargs)
+
+            #Registering interest
+            DispatchMgr().register(cls._instance)
+        return cls._instance
+
+    def update(self, notifier, object, *args, **kwargs):
+        if isinstance(notifier, DispatchMgr):
+            dispatch = object
+            self.publish(dispatch, type="SmsPublisher")
+        print("\n================" + str(self) + "is notified by " + str(notifier) + "================\n")
+
+    def generate_message(self, dispatch):
+        incident = dispatch.incident
+        content = "Name: {} Location: {} Description: {} Resources: {}" \
+            .format(incident.name, incident.location, incident.description, dispatch.resource)
+        return content
+
+    def publish(self, dispatch, type="SmsPublisher"):
+        message = self.generate_message(dispatch)
+        publisher = MediaPublisherLoader.load_publisher(type)
+        return publisher.compose_and_publish(message=message, recipient_list=[dispatch.agency.contact,])
+
+#####Instantiate SocialMediaReportMgr right away
+DispatchSmsMgr()

@@ -10,7 +10,7 @@ class AbstractObserver(object):
         pass
 
     @abstractmethod
-    def update(self, *args, **kwargs):
+    def update(self, notifier, object, *args, **kwargs):
         pass
 
 
@@ -29,12 +29,11 @@ class EmergencyManagerMgr(AbstractObserver):
             DispatchMgr().register(cls._instance)
         return cls._instance
 
-    def update(self, *args, **kwargs):
-        notifier = kwargs["notifier"]
-        print("\n================" + str(self) + "is notified by " + str(notifier) + "================\n")
+    def update(self, notifier, object, *args, **kwargs):
         '''
         Please add in what happens after the system notified EmergencyManagerMgr something changed
         '''
+
 
 #####Instantiate EmergencyManagerMgr right away
 EmergencyManagerMgr()
@@ -55,8 +54,7 @@ class SystemMonitor(AbstractObserver):
             DispatchMgr().register(cls._instance)
         return cls._instance
 
-    def update(self, *args, **kwargs):
-        notifier = kwargs["notifier"]
+    def update(self, notifier, object, *args, **kwargs):
         print("\n================" + str(self) + "is notified by " + str(notifier) + "================\n")
 
 #####Instantiate EmergencyManagerMgr right away

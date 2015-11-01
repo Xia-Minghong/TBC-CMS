@@ -23,6 +23,8 @@ class Incident(models.Model):
     severity = models.IntegerField()
     time = models.DateTimeField('time reported', default = django.utils.timezone.now)
     location = models.CharField(max_length = 100)
+    longitutde = models.CharField(max_length = 50, default = '0')
+    latitude = models.CharField(max_length = 50, default = '0')
     contact = models.CharField(max_length = 50)
     type = models.CharField(max_length = 50, choices = inci_type)
     description = models.TextField(blank = True)

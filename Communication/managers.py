@@ -111,8 +111,22 @@ class DispatchSmsMgr(AbstractObserver):
 
     def generate_message(self, dispatch):
         incident = dispatch.incident
-        content = "Name: {} Location: {} Description: {} Resources: {}" \
-            .format(incident.name, incident.location, incident.description, dispatch.resource)
+        agency = dispatch.agency
+        content = \
+            """
+Dear {}:
+
+    An incident, {}, happened at {} at {}. Below is a short descrition of the incident.
+
+    Description: {}
+
+    As such, {}
+
+    Thank you!
+
+Best regards,
+CMS Team""" \
+            .format(agency.name, incident.name, incident.time, incident.location, incident.description, dispatch.resource)
         return content
 
     def publish(self, dispatch, type="SmsPublisher"):

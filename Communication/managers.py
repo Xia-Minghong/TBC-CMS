@@ -112,17 +112,20 @@ class DispatchSmsMgr(AbstractObserver):
     def generate_message(self, dispatch):
         incident = dispatch.incident
         agency = dispatch.agency
+
+        #Purpose of () at the beginning is to separate text from the message by Twilio trial account
         content = \
             """
+()
+
 Dear {}:
+      An incident, {}, happened at {} at {}. Below is a short descrition of the incident.
 
-    An incident, {}, happened at {} at {}. Below is a short descrition of the incident.
+      Description: {}
 
-    Description: {}
+      As such, {}
 
-    As such, {}
-
-    Thank you!
+      Thank you!
 
 Best regards,
 CMS Team""" \

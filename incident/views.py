@@ -326,7 +326,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
         from .notifiers import DispatchMgr
         DispatchMgr().notify(object=dispatch)
         self.queryset = InciUpdate.objects.all().filter(id = pk)
-        return viewsets.ModelViewSet.retrieve(self, request)
+        return Response("Message successfully sent to {} at {}".format(dispatch.agency.name, dispatch.agency.contact))#viewsets.ModelViewSet.retrieve(self, request)
 
     def sendSMS(self, request, incident,url):
         agency = Agency.objects.get(pk = request.data['agency'])

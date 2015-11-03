@@ -231,6 +231,8 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     #POST http://127.0.0.1:8000/incidents/inci_id/updates/
     #Regardless of the incident input, it will create an updatekeys under inci_id
     def create(self, request, *args, **kwargs):
+        print request.data.__class__
+        
         request.data['incident'] = kwargs['inci_id']
         request.data['is_approved'] = False
         self.serializer_class = InciUpdateWriteSerializer

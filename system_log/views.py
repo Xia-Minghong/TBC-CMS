@@ -29,14 +29,14 @@ class SyslogViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
     
     
-def push():
+def push(request):
     queryset = Syslog.objects.order_by('-id')[0]
     serializer = SyslogReadSerializer(queryset)
-    publish(serializer, "syslog")
+    publish(serializer, "syslog", request)
         
-def create_syslog(name, generator):
+def create_syslog(name, generator, request):
     syslog = Syslog(name = name, time = timezone.now(), generator = generator)
     syslog.save()
-    push()
+    push(request)
     
     

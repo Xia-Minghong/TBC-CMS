@@ -67,7 +67,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
         self.push(request)
         new_incident = Incident.objects.order_by('-id')[0]
-        create_syslog(name = "A Crisis Report<" + new_incident.name + "> Created", generator = request.user)
+        create_syslog(name = "A Crisis Report<" + new_incident.name + "> Created", generator = request.user, request = request)
         return response
     
     
@@ -75,7 +75,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         response = viewsets.ModelViewSet.update(self, request, *args, **kwargs)
         self.push(request)
-        create_syslog(name = "A Crisis <" + self.get_object().name + "> Updated", generator = request.user)
+        create_syslog(name = "A Crisis <" + self.get_object().name + "> Updated", generator = request.user, request = request)
         return response
 
     #GET http://127.0.0.1:8000/incidents/inci_id/approve/
@@ -101,7 +101,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident.status = 'approved'
         incident.save()
         self.push(request)
-        create_syslog(name = "A Crisis Report <" + incident.name + "> Approved", generator = request.user)
+        create_syslog(name = "A Crisis Report <" + incident.name + "> Approved", generator = request.user, request = request)
         self.queryset = Incident.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
 
@@ -133,7 +133,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident.status = 'rejected'
         incident.save()
         self.push(request)
-        create_syslog(name = "A Crisis Report <" + incident.name + "> Rejected", generator = request.user)        
+        create_syslog(name = "A Crisis Report <" + incident.name + "> Rejected", generator = request.user, request = request)        
         self.queryset = Incident.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
     
@@ -143,7 +143,8 @@ class IncidentViewSet(viewsets.ModelViewSet):
     def sync(self, request):
         # Sample code for reading incidents message queue
         redis_publisher = RedisPublisher(facility='pushes', broadcast=True)
-        message = redis_publisher.fetch_message(request, 'pushes')
+        #message = redis_publisher.fetch_message(request, 'pushes')
+        message = redis_publisher.fetch_message(request, facility='pushes')
         # if the message is empty, replace it with a empty json/dict and convert to a string
         if not message:
             message = json.dumps({})
@@ -237,9 +238,9 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         cur_incident.severity = request.data['updated_severity']
         cur_incident.save()
         publish_incident(request)
-        create_syslog(name = "A Crisis <" + cur_incident.name + "> Updated", generator = request.user)
+        create_syslog(name = "A Crisis <" + cur_incident.name + "> Updated", generator = request.user, request = request)
         self.push(request)
-        create_syslog(name = "A Crisis Update for <" + cur_incident.name + "> Created", generator = request.user)
+        create_syslog(name = "A Crisis Update for <" + cur_incident.name + "> Created", generator = request.user, request = request)
         return response
     
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/approve/
@@ -250,7 +251,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         inci_update.is_approved = True
         inci_update.save()
         self.push(request)
-        create_syslog(name = "A Crisis Update for <" + inci_update.incident.name + "> Approved", generator = request.user)
+        create_syslog(name = "A Crisis Update for <" + inci_update.incident.name + "> Approved", generator = request.user, request = request)
         self.queryset = InciUpdate.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
     
@@ -298,9 +299,9 @@ class DispatchViewSet(viewsets.ModelViewSet):
         #url for dispatch
         specialURL = updatekeys.views.generateKey(kwargs['inci_id'], request.data['agency'])
 
-        create_syslog(name = "A Crisis <" + cur_incident.name + "> Dispatched", generator = request.user)
+        create_syslog(name = "A Crisis <" + cur_incident.name + "> Dispatched", generator = request.user, request = request)
         self.publish()
-        create_syslog(name = "A Crisis Dispatch for <" + cur_incident.name + "> Created", generator = request.user)
+        create_syslog(name = "A Crisis Dispatch for <" + cur_incident.name + "> Created", generator = request.user, request = request)
 
         # self.sendSMS(request, cur_incident,specialURL)
         from Communication.managers import DispatchSmsMgr
@@ -322,7 +323,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
         dispatch.is_approved = True
         dispatch.save()
         # self.push(request)
-        # create_syslog(name = "A Crisis Update for <" + dispatch.incident.name + "> Approved", generator = request.user)
+        # create_syslog(name = "A Crisis Update for <" + dispatch.incident.name + "> Approved", generator = request.user, request = request)
         from .notifiers import DispatchMgr
         DispatchMgr().notify(object=dispatch)
         self.queryset = InciUpdate.objects.all().filter(id = pk)

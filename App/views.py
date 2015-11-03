@@ -6,6 +6,7 @@ from .serializers import UserSerializer, GroupSerializer
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
 import json
+import ast
 
 def index(request):
     return render(request, 'index.html')
@@ -20,7 +21,10 @@ class GroupViewSet(viewsets.ModelViewSet):
     
 def publish(serializer, category, request):
     message = {}
-    message[category] = serializer.data
+    #message[category] = serializer.data
     redis_publisher = RedisPublisher(facility = 'pushes', broadcast = True)
-    message.update(redis_publisher.fetch_message( request , 'pushes'))
+    existing_message = redis_publisher.fetch_message( request , 'pushes')
+    if existing_message:
+        message = ast.literal_eval(existing_message)
+    message[category] = serializer.data
     redis_publisher.publish_message(RedisMessage(json.dumps(message)))

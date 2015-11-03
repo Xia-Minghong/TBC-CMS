@@ -254,7 +254,10 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         self.push(request)
         create_syslog(name = "A Crisis Update for <" + inci_update.incident.name + "> Approved", generator = request.user, request = request)
         self.queryset = InciUpdate.objects.all().filter(id = pk)
-        return viewsets.ModelViewSet.retrieve(self, request)
+        from .notifiers import InciUpdateMgr
+        InciUpdateMgr().notify(object=inci_update)
+        self.queryset = InciUpdate.objects.all().filter(id = pk)
+        return Response("Message successfully sent to {} at {}".format(inci_update.agency.name, inci_update.agency.contact))#viewsets.ModelViewSet.retrieve(self, request)
     
 class DispatchViewSet(viewsets.ModelViewSet):
     queryset = Dispatch.objects.all()

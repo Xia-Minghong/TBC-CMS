@@ -10,13 +10,11 @@ from updatekeys.models import updatesKeys
 
 
 def generateKey(incidentID , agencyID):
-    print incidentID
-    print agencyID
     
     # if existing key. ignore 
     query = updatesKeys.objects.all().filter(incidentID = incidentID, agencyID = agencyID)
     if query:
-        return constants.BASEURL + query[0].keys
+        return constants.BASEURL + query[0].keys 
     
     keyObject = hashlib.md5()
     keyObject.update(incidentID.__str__() + '&' + agencyID.__str__())

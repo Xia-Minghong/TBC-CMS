@@ -156,6 +156,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         # redis_publisher.publish_message(message)
 
         return Response(json.loads(message))
+        #return Response(data=message.replace("\\", ""))
     
     #GET http://127.0.0.1:8000/incidents/types/
     '''Return
@@ -297,15 +298,15 @@ class DispatchViewSet(viewsets.ModelViewSet):
         publish_incident(request)
 
         #url for dispatch
-        specialURL = updatekeys.views.generateKey(kwargs['inci_id'], request.data['agency'])
+        #specialURL = updatekeys.views.generateKey(kwargs['inci_id'], request.data['agency'])
 
         create_syslog(name = "A Crisis <" + cur_incident.name + "> Dispatched", generator = request.user, request = request)
-        self.publish()
+        self.push(request)
         create_syslog(name = "A Crisis Dispatch for <" + cur_incident.name + "> Created", generator = request.user, request = request)
 
         # self.sendSMS(request, cur_incident,specialURL)
-        from Communication.managers import DispatchSmsMgr
-        DispatchSmsMgr().publish(self.get_object(), type="SmsPublisher")
+        '''from Communication.managers import DispatchSmsMgr
+        DispatchSmsMgr().publish(self.get_object(), type="SmsPublisher")'''
         return response
 
     #GET http://127.0.0.1:8000/incidents/inci_id/dispatches/dispatch_id/
@@ -322,7 +323,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
         dispatch = self.get_object()
         dispatch.is_approved = True
         dispatch.save()
-        # self.push(request)
+        #self.push(request)
         # create_syslog(name = "A Crisis Update for <" + dispatch.incident.name + "> Approved", generator = request.user, request = request)
         from .notifiers import DispatchMgr
         DispatchMgr().notify(object=dispatch)

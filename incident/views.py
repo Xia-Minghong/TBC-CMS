@@ -304,6 +304,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
 
         #url for dispatch
         specialURL = updatekeys.keysUtil.generateKey(kwargs['inci_id'], request.data['agency'])
+        print specialURL
 
         create_syslog(name = "A Crisis <" + cur_incident.name + "> Dispatched", generator = request.user, request = request)
         self.push(request)

@@ -9,9 +9,22 @@ class updatesKeySerializer(serializers.ModelSerializer):
     class Meta:
         model = updatesKeys
 
+
+
+
 class UpdatesViewSets(viewsets.ModelViewSet):
     queryset = updatesKeys.objects.all()
     serializer_class = updatesKeySerializer
+    
+    
+    #POST http://localhost:8000/update/<keys>/keys/
+    # {"updated_severity" : 1, "description" : "hahah"}
+    
+    '''
+    return the updated incident
+    401 if the key is not valid
+    '''
+    
     def create(self, request, *args, **kwargs):
         
         keyset = updatekeys.keysUtil.verifyKey(kwargs['key'])
@@ -23,7 +36,10 @@ class UpdatesViewSets(viewsets.ModelViewSet):
         tempClass.request = request
         tempClass.format_kwarg = kwargs
         return tempClass.create(request,args,inci_id = keyset["incidentID"])
+    
 
+    #GET http://localhost:8000/update/<keys>/keys/
+    #return {"true"} if key is vaild, 401 otherwise
     def list(self, request, *args, **kwargs):
         keyset = updatekeys.keysUtil.verifyKey(kwargs['key'])
         if not keyset:

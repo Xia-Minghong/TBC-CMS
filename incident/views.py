@@ -303,13 +303,13 @@ class DispatchViewSet(viewsets.ModelViewSet):
         publish_incident(request)
 
         #url for dispatch
-        #specialURL = updatekeys.views.generateKey(kwargs['inci_id'], request.data['agency'])
+        specialURL = updatekeys.keysUtil.generateKey(kwargs['inci_id'], request.data['agency'])
 
         create_syslog(name = "A Crisis <" + cur_incident.name + "> Dispatched", generator = request.user, request = request)
         self.push(request)
         create_syslog(name = "A Crisis Dispatch for <" + cur_incident.name + "> Created", generator = request.user, request = request)
 
-        # self.sendSMS(request, cur_incident,specialURL)
+        self.sendSMS(request, cur_incident,specialURL)
         '''from Communication.managers import DispatchSmsMgr
         DispatchSmsMgr().publish(self.get_object(), type="SmsPublisher")'''
         return response

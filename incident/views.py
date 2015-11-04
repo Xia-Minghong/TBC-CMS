@@ -231,6 +231,8 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     #POST http://127.0.0.1:8000/incidents/inci_id/updates/
     #Regardless of the incident input, it will create an updatekeys under inci_id
     def create(self, request, *args, **kwargs):
+        print request.data.__class__
+        
         request.data['incident'] = kwargs['inci_id']
         request.data['is_approved'] = False
         self.serializer_class = InciUpdateWriteSerializer
@@ -254,7 +256,10 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         self.push(request)
         create_syslog(name = "A Crisis Update for <" + inci_update.incident.name + "> Approved", generator = request.user, request = request)
         self.queryset = InciUpdate.objects.all().filter(id = pk)
-        return viewsets.ModelViewSet.retrieve(self, request)
+        from .notifiers import InciUpdateMgr
+        InciUpdateMgr().notify(object=inci_update)
+        self.queryset = InciUpdate.objects.all().filter(id = pk)
+        return Response("Message successfully sent to {} at {}".format(inci_update.agency.name, inci_update.agency.contact))#viewsets.ModelViewSet.retrieve(self, request)
     
 class DispatchViewSet(viewsets.ModelViewSet):
     queryset = Dispatch.objects.all()
@@ -298,13 +303,14 @@ class DispatchViewSet(viewsets.ModelViewSet):
         publish_incident(request)
 
         #url for dispatch
-        #specialURL = updatekeys.views.generateKey(kwargs['inci_id'], request.data['agency'])
+        specialURL = updatekeys.keysUtil.generateKey(kwargs['inci_id'], request.data['agency'])
+        print specialURL
 
         create_syslog(name = "A Crisis <" + cur_incident.name + "> Dispatched", generator = request.user, request = request)
         self.push(request)
         create_syslog(name = "A Crisis Dispatch for <" + cur_incident.name + "> Created", generator = request.user, request = request)
 
-        # self.sendSMS(request, cur_incident,specialURL)
+        self.sendSMS(request, cur_incident,specialURL)
         '''from Communication.managers import DispatchSmsMgr
         DispatchSmsMgr().publish(self.get_object(), type="SmsPublisher")'''
         return response

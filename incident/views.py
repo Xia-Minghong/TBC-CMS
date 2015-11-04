@@ -68,6 +68,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         self.push(request)
         new_incident = Incident.objects.order_by('-id')[0]
         create_syslog(name = "A Crisis Report<" + new_incident.name + "> Created", generator = request.user, request = request)
+        self.propose_dispatch(request, new_incident)
         return response
     
     
@@ -204,6 +205,23 @@ class IncidentViewSet(viewsets.ModelViewSet):
     def test(self, request):
         IncidentMgr().notify()
         return Response("testing, haha")
+    
+    
+    def propose_dispatch(self, request, incident):
+        agency = Agency.objects.order_by('?')[0]
+        resource = ""
+        if incident.type == 'haze':
+            resource = "N95 Distributor, Water Dispenser"
+        elif incident.type == 'fire':
+            resource = "Fire Engine, Ambulance"
+        elif incident.type == 'crash':
+            resource = "Police Car, Ambulance"
+        elif incident.type == 'dengue':
+            resource = "Ambulance"
+        dispatch = Dispatch(incident = incident, agency = agency, resource = resource, time = timezone.now())
+        dispatch.save()
+        serializer = DispatchSerializer(dispatch)
+        publish(serializer, "proposed_dispatch", request)
 
 
 class InciUpdateViewSet(viewsets.ModelViewSet):
@@ -264,21 +282,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
 class DispatchViewSet(viewsets.ModelViewSet):
     queryset = Dispatch.objects.all()
     serializer_class = DispatchSerializer
-    
-    '''@classmethod
-    def propose_dispatch(cls, incident):
-        agency = Agency.objects.order_by('?')[0]
-        resource = ""
-        if incident.type == 'haze':
-            resource = "N95 Distributor, Water Dispenser"
-        elif incident.type == 'fire':
-            resource = "Fire Engine, Ambulance"
-        elif incident.type == 'crash':
-            resource = "Police Car, Ambulance"
-        elif incident.type == 'dengue':
-            resource = "Ambulance"
-        dispatch = Dispatch(incident = incident, agency = agency, resource = resource, time = timezone.now())
-        #serializer = '''
+
     
     def push(self, request):
         queryset = Dispatch.objects.all()

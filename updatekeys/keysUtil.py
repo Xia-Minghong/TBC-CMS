@@ -18,10 +18,11 @@ def generateKey(incidentID , agencyID):
     
     keyObject = hashlib.md5()
     keyObject.update(incidentID.__str__() + '&' + agencyID.__str__())
-    for _ in range(7):
+    for _ in range(constants.ENCRYPT_LEVEL):
         key = keyObject.hexdigest()
         keyObject = hashlib.md5()
         keyObject.update(key)
+    key = keyObject.hexdigest()
     keyInstance = updatesKeys(incidentID = Incident.objects.get(pk = incidentID), agencyID = Agency.objects.get(pk = agencyID), keys = key)
     keyInstance.save()
     return constants.BASEURL + keyInstance.keys

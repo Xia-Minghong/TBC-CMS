@@ -23,7 +23,7 @@ RECENT_INTERVAL = datetime.timedelta(minutes=50)
 
 #Push all incidents
 def publish_incident(request):
-    queryset = Incident.objects.all()
+    queryset = Incident.objects.exclude(status = 'closed')
     serializer = IncidentSerializer(queryset, many = True)
     publish(serializer, "incidents", request)
     
@@ -106,39 +106,20 @@ class IncidentViewSet(viewsets.ModelViewSet):
         self.queryset = Incident.objects.all().filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
 
+    @detail_route(methods=['get'])
+    def archive(self, request, pk = None):
+        incident = self.get_object()
+        incident.status = 'closed'
+        incident.save
+        self.push(request)
+        create_syslog(name = "A Crisis Report <" + incident.name + "> Archived", generator = request.user, request = request)
+        self.queryset = Incident.objects.filter(id = pk)
+        return viewsets.ModelViewSet.retrieve(self, request)
+    
     #GET http://127.0.0.1:8000/incidents/recent/
     @list_route(methods=['get'])
     def recent(self, request, pk = None):
         return Response(IncidentMgr().recent_incidents(timedelta=RECENT_INTERVAL))
-
-    #GET http://127.0.0.1:8000/incidents/inci_id/reject/
-    #Reject an incident
-    '''Return
-    {
-    "id": 28,
-    "name": "push6",
-    "status": "rejected",
-    "severity": 5,
-    "time": "2015-10-30T16:21:15Z",
-    "location": "swh",
-    "contact": "123",
-    "type": "haze",
-    "description": "NA",
-    "updates": [],
-    "dispatches": []
-    }
-    '''
-    @detail_route(methods=['get'])
-    def reject(self, request, pk = None):
-        incident = self.get_object()
-        incident.status = 'rejected'
-        incident.save()
-        self.push(request)
-        create_syslog(name = "A Crisis Report <" + incident.name + "> Rejected", generator = request.user, request = request)        
-        self.queryset = Incident.objects.all().filter(id = pk)
-        return viewsets.ModelViewSet.retrieve(self, request)
-    
-
 
     @list_route(methods=['get'])
     def sync(self, request):

@@ -2,6 +2,8 @@ __author__ = 'Jiaxiang'
 
 from abc import ABCMeta, abstractmethod
 from .notifiers import *
+from .views import publish
+
 
 class AbstractObserver(object):
     __metaclass__ = ABCMeta
@@ -31,11 +33,10 @@ class EmergencyManagerMgr(AbstractObserver):
 
     def update(self, notifier, object, message, *args, **kwargs):
         if isinstance(notifier,DispatchMgr) and message=="propose_dispatch":
-            from .views import publish
             serializer = DispatchSerializer(object)
             publish(serializer, "proposed_dispatch", request="")
         elif isinstance(notifier,IncidentMgr) and message=="create":
-            incidents = notifier.get_incidents()
+            incidents = notifier.get_objects()
             serializer = IncidentSerializer(incidents, many=True)
             publish(serializer, "incidents", request="")
         '''
@@ -64,6 +65,25 @@ class SystemMonitor(AbstractObserver):
 
     def update(self, notifier, object, message, *args, **kwargs):
         print("\n================" + str(self) + "is notified by " + str(notifier) + "================\n")
+
+        from .views import publish
+        if isinstance(notifier,IncidentMgr) and message=="approve":
+            incidents = notifier.get_objects()
+            serializer = IncidentSerializer(incidents, many=True)
+            publish(serializer, "incidents", request="")
+
+        elif isinstance(notifier,InciUpdateMgr) and message=="approve":
+            updates = notifier.get_objects()
+            serializer = InciUpdateSerializer(updates, many=True)
+            publish(serializer, "incidents", request="")
+
+        elif isinstance(notifier,DispatchMgr) and message=="approve":
+            dispatches = notifier.get_objects()
+            serializer = DispatchSerializer(dispatches, many=True)
+            publish(serializer, "incidents", request="")
+        """
+        consider moving publishing parts here?
+        """
 
 #####Instantiate EmergencyManagerMgr right away
 SystemMonitor()

@@ -80,7 +80,7 @@ class ReportMgr:
         incidents_data = IncidentMgr().recent_incidents(RECENT_INTERVAL)
         updates_data = InciUpdateMgr().recent_updates(RECENT_INTERVAL)
         dispatches_data = DispatchMgr().recent_dispatches(RECENT_INTERVAL)
-        message = 'The testing is successful!!!\nTime tested: ' + time.ctime()
+        #message = 'The testing is successful!!!\nTime tested: ' + time.ctime()
         
 
         message += ("\n\nRecent Incidents\n====================")
@@ -118,11 +118,10 @@ class ReportMgr:
     def publish(self, type):
         if type == "EmailPublisher":
             message = self.generate_message()
+        elif type == 'TwitterPublisher':
+            message = self.generateTwitter()
         else:
-            if type == 'TwitterPublisher':
-                message = self.generateTwitter()
-            else:
-                message = self.generateSocialMediaMessage()
+            message = self.generateSocialMediaMessage()
         publisher = MediaPublisherLoader.load_publisher(type=type)
         return publisher.compose_and_publish(message)
 

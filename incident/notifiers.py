@@ -28,6 +28,9 @@ class AbstractNotifier(object):
             observer.update(notifier=self, object=object, message=message, *args, **kwargs)
             print("==========" + str(self) + " notified " + str(observer) + "=========")
 
+    def get_objects(self):
+        pass
+
 
 
 class IncidentMgr(AbstractNotifier):
@@ -52,7 +55,8 @@ class IncidentMgr(AbstractNotifier):
         incidents = Incident.objects.filter(time__gte=cut_off)
         serializer = IncidentSerializer(incidents, many=True)
         return serializer.data
-    def get_incidents(self):
+
+    def get_objects(self):
         return Incident.objects.exclude(status = 'closed')
 
 class InciUpdateMgr(AbstractNotifier):
@@ -77,6 +81,9 @@ class InciUpdateMgr(AbstractNotifier):
         serializer = InciUpdateSerializer(inci_updates, many=True)
         return serializer.data
 
+    def get_objects(self):
+        return InciUpdate.objects.all()
+
 class DispatchMgr(AbstractNotifier):
     _instance = None
 
@@ -90,6 +97,9 @@ class DispatchMgr(AbstractNotifier):
                                 cls, *args, **kwargs)
             cls._instance.__construct()
         return cls._instance
+
+    def get_objects(self):
+        return Dispatch.objects.all()
 
     def recent_dispatches(self, timedelta):
         import datetime

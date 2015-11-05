@@ -329,6 +329,18 @@ class DispatchViewSet(viewsets.ModelViewSet):
         self.queryset = InciUpdate.objects.all().filter(id = pk)
         return Response("Message successfully sent to {} at {}".format(dispatch.agency.name, dispatch.agency.contact))#viewsets.ModelViewSet.retrieve(self, request)
 
+    #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/reject/
+    #Reject and delte an incident update specified by inciUpdate_id
+    @detail_route(methods=['get'])
+    def reject(self, request, inci_id, pk = None):
+        dispatch = self.get_object()
+        dispatch.delete()
+        self.push(request)
+        create_syslog(name = "A Dispatch for <" + dispatch.incident.name + "> Rejected and Deleted", generator = request.user, request = request)
+        serializer = DispatchSerializer(dispatch)
+        return Response(serializer.data)
+
+
     def sendSMS(self, request, incident,url):
         agency = Agency.objects.get(pk = request.data['agency'])
         content = "{} Name: {} Location: {} Description: {} Resources: {}" \

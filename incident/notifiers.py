@@ -52,6 +52,8 @@ class IncidentMgr(AbstractNotifier):
         incidents = Incident.objects.filter(time__gte=cut_off)
         serializer = IncidentSerializer(incidents, many=True)
         return serializer.data
+    def get_incidents(self):
+        return Incident.objects.exclude(status = 'closed')
 
 class InciUpdateMgr(AbstractNotifier):
     _instance = None

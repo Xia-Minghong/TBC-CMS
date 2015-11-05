@@ -68,8 +68,8 @@ class IncidentViewSet(viewsets.ModelViewSet):
         if created:
             self.push(request)
             create_syslog(name = "A Crisis Report<" + incident.name + "> Created", generator = request.user, request = request)
-            from .notifiers import DispatchMgr
-            DispatchMgr().propose_dispatch(incident)
+            from .notifiers import IncidentMgr
+            IncidentMgr.notify(incident,message="create")
             serializer = IncidentRetrieveSerializer(incident)
             return Response(serializer.data)
         else:
@@ -114,6 +114,8 @@ class IncidentViewSet(viewsets.ModelViewSet):
         self.push(request)
         create_syslog(name = "A Crisis Report <" + incident.name + "> Approved", generator = request.user, request = request)
         self.queryset = Incident.objects.all().filter(id = pk)
+        from .notifiers import DispatchMgr
+        DispatchMgr().propose_dispatch(incident)
         return viewsets.ModelViewSet.retrieve(self, request)
 
     @detail_route(methods=['get'])
@@ -309,8 +311,8 @@ class DispatchViewSet(viewsets.ModelViewSet):
         dispatch = self.get_object()
         dispatch.is_approved = True
         dispatch.save()
-        #self.push(request)
-        # create_syslog(name = "A Crisis Update for <" + dispatch.incident.name + "> Approved", generator = request.user, request = request)
+        self.push(request)
+        create_syslog(name = "A Crisis Update for <" + dispatch.incident.name + "> Approved", generator = request.user, request = request)
         from .notifiers import DispatchMgr
         DispatchMgr().notify(object=dispatch, message="approve")
         self.queryset = InciUpdate.objects.all().filter(id = pk)

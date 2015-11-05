@@ -29,7 +29,7 @@ def publish_incident(request):
     
     
 class IncidentViewSet(viewsets.ModelViewSet):
-    queryset = Incident.objects.all()
+    queryset = Incident.objects.exclude(status = 'closed')
     serializer_class = IncidentSerializer
     
     def push(self, request):

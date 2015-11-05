@@ -12,7 +12,6 @@ inci_type = (
 class Incident(models.Model):
     inci_status = (
                    ('initiated', 'initiated'), 
-                   ('rejected', 'rejected'),
                    ('approved', 'approved'),
                    ('dispatched', 'dispatched'),
                    ('closed', 'closed'), )

@@ -17,7 +17,8 @@ class UserViewSet(viewsets.ModelViewSet):
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    
+
+#category: sys_log, incident, update, dispatch, proposed_dispatch
 def publish(serializer, category, request):
     message = {}
     redis_publisher = RedisPublisher(facility = 'pushes', broadcast = True)

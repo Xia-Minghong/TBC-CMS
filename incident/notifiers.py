@@ -96,3 +96,20 @@ class DispatchMgr(AbstractNotifier):
         dispatches = Dispatch.objects.filter(time__gte=cut_off)
         serializer = DispatchSerializer(dispatches, many=True)
         return serializer.data
+
+    def propose_dispatch(self, incident):
+        agency = Agency.objects.order_by('?')[0]
+        resource = ""
+        if incident.type == 'haze':
+            resource = "N95 Distributor, Water Dispenser"
+        elif incident.type == 'fire':
+            resource = "Fire Engine, Ambulance"
+        elif incident.type == 'crash':
+            resource = "Police Car, Ambulance"
+        elif incident.type == 'dengue':
+            resource = "Ambulance"
+
+        from django.utils import timezone
+        dispatch = Dispatch(incident = incident, agency = agency, resource = resource, time = timezone.now())
+        dispatch.save()
+        self.notify(dispatch,"propose_dispatch")

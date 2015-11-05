@@ -64,12 +64,22 @@ class IncidentViewSet(viewsets.ModelViewSet):
     '''
     def create(self, request, *args, **kwargs):
         request.data['status'] = 'initiated'
-        response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
-        self.push(request)
-        new_incident = Incident.objects.order_by('-id')[0]
-        create_syslog(name = "A Crisis Report<" + new_incident.name + "> Created", generator = request.user, request = request)
-        self.propose_dispatch(request, new_incident)
-        return response
+        incident, created = Incident.objects.get_or_create(**(request.data))
+        if created:
+            self.push(request)
+            create_syslog(name = "A Crisis Report<" + incident.name + "> Created", generator = request.user, request = request)
+            from .notifiers import DispatchMgr
+            DispatchMgr().propose_dispatch(incident)
+            serializer = IncidentRetrieveSerializer(incident)
+            return Response(serializer.data)
+        else:
+            return Response("incident creation failed")
+        # response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
+        # self.push(request)
+        # new_incident = Incident.objects.order_by('-id')[0]
+        # create_syslog(name = "A Crisis Report<" + new_incident.name + "> Created", generator = request.user, request = request)
+        # self.propose_dispatch(request, new_incident)
+        # return response
     
     
     #PUT http://127.0.0.1:8000/incidents/inci_id/
@@ -186,23 +196,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     def test(self, request):
         IncidentMgr().notify()
         return Response("testing, haha")
-    
-    
-    def propose_dispatch(self, request, incident):
-        agency = Agency.objects.order_by('?')[0]
-        resource = ""
-        if incident.type == 'haze':
-            resource = "N95 Distributor, Water Dispenser"
-        elif incident.type == 'fire':
-            resource = "Fire Engine, Ambulance"
-        elif incident.type == 'crash':
-            resource = "Police Car, Ambulance"
-        elif incident.type == 'dengue':
-            resource = "Ambulance"
-        dispatch = Dispatch(incident = incident, agency = agency, resource = resource, time = timezone.now())
-        dispatch.save()
-        serializer = DispatchSerializer(dispatch)
-        publish(serializer, "proposed_dispatch", request)
+
 
 
 class InciUpdateViewSet(viewsets.ModelViewSet):
@@ -279,26 +273,27 @@ class DispatchViewSet(viewsets.ModelViewSet):
     #POST http://127.0.0.1:8000/incidents/inci_id/dispatches/
     #Regardless of the incident input, it will create a dispatch under inci_id
     def create(self, request, *args, **kwargs):
-        request.data['incident'] = kwargs['inci_id']
-        self.serializer_class = DispatchWriteSerializer
-        response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
-        cur_incident = Incident.objects.get(pk = kwargs['inci_id'])
-        cur_incident.status = 'dispatched'
-        cur_incident.save()
-        publish_incident(request)
-
-        #url for dispatch
-        specialURL = updatekeys.keysUtil.generateKey(kwargs['inci_id'], request.data['agency'])
-        print specialURL
-
-        create_syslog(name = "A Crisis <" + cur_incident.name + "> Dispatched", generator = request.user, request = request)
-        self.push(request)
-        create_syslog(name = "A Crisis Dispatch for <" + cur_incident.name + "> Created", generator = request.user, request = request)
-
-        self.sendSMS(request, cur_incident,specialURL)
-        '''from Communication.managers import DispatchSmsMgr
-        DispatchSmsMgr().publish(self.get_object(), type="SmsPublisher")'''
-        return response
+        return Response("method not allowed")
+        # request.data['incident'] = kwargs['inci_id']
+        # self.serializer_class = DispatchWriteSerializer
+        # response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
+        # cur_incident = Incident.objects.get(pk = kwargs['inci_id'])
+        # cur_incident.status = 'dispatched'
+        # cur_incident.save()
+        # publish_incident(request)
+        #
+        # #url for dispatch
+        # specialURL = updatekeys.keysUtil.generateKey(kwargs['inci_id'], request.data['agency'])
+        # print specialURL
+        #
+        # create_syslog(name = "A Crisis <" + cur_incident.name + "> Dispatched", generator = request.user, request = request)
+        # self.push(request)
+        # create_syslog(name = "A Crisis Dispatch for <" + cur_incident.name + "> Created", generator = request.user, request = request)
+        #
+        # self.sendSMS(request, cur_incident,specialURL)
+        # '''from Communication.managers import DispatchSmsMgr
+        # DispatchSmsMgr().publish(self.get_object(), type="SmsPublisher")'''
+        # return response
 
     #GET http://127.0.0.1:8000/incidents/inci_id/dispatches/dispatch_id/
     #Return one dispatch associated with the incident specified by inci_id

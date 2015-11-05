@@ -30,6 +30,10 @@ class EmergencyManagerMgr(AbstractObserver):
         return cls._instance
 
     def update(self, notifier, object, message, *args, **kwargs):
+        if isinstance(notifier,DispatchMgr) and message=="propose_dispatch":
+            from .views import publish
+            serializer = DispatchSerializer(object)
+            publish(serializer, "proposed_dispatch", request="")
         '''
         Please add in what happens after the system notified EmergencyManagerMgr something changed
         '''

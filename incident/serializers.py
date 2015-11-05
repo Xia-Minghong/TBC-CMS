@@ -39,6 +39,8 @@ class IncidentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Incident
 
+
+
 '''class IncidentListSerializer(serializers.ModelSerializer):
     #default 'create' and 'updatekeys'
 

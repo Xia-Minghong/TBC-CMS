@@ -1,3 +1,4 @@
+from Cython.Compiler.Errors import message
 __author__ = 'Jiaxiang'
 
 from incident.observers import AbstractObserver
@@ -32,21 +33,60 @@ SocialMediaReportMgr()
 
 class ReportMgr:
 
-
+    def generateTwitter(self):
+        import time
+        from incident.views import RECENT_INTERVAL
+        incidents_data = IncidentMgr().recent_incidents(RECENT_INTERVAL)
+        updates_data = InciUpdateMgr().recent_updates(RECENT_INTERVAL)
+        message = "\nNnumber of new incidents " + str(len(incidents_data))
+        message += "\nNumber of new updates " + str(len(incidents_data))
+        message += "\nShelters available at NTU Hall 16B 4 - 03"
+        return message
+        
+    def generateSocialMediaMessage(self):
+        import time
+        from incident.views import RECENT_INTERVAL
+        incidents_data = IncidentMgr().recent_incidents(RECENT_INTERVAL)
+        updates_data = InciUpdateMgr().recent_updates(RECENT_INTERVAL)
+        
+        message = '\nShelters available at NTU Hall 16B 4 - 03' + time.ctime()
+        if incidents_data:
+            message += ("\n\nRecent Incidents\n====================")
+            for incident in incidents_data:
+                if incident["status"] == "approved" or incident["status"] == "dispatched":
+                    message += ("\n")
+                    message += ("\nIncident   : " + incident["name"]) 
+                    message += ("\ntype       : " + incident["type"])
+                    message += ("\nTime       : " + incident["time"])
+                    message += ("\nLocation   : " + incident["location"])
+                    message += ("\nDescription: " + incident["description"])
+                    message += ("\n")
+        if updates_data:
+            message += ("\n\nRecent Updates\n====================")
+            for update in updates_data:
+                message += ("\n")
+                message += ("\nIncident        : " + update["incident"]["name"])
+                message += ("\nDescription     : " + update["description"])
+                message += ("\n")
+        return message
+        
     def generate_message(self):
         import time
         from incident.views import RECENT_INTERVAL
+        
+        
         #localtime = time.asctime( time.localtime(time.time()) )
         #localtime = timezone.localtime(timezone.now())
         incidents_data = IncidentMgr().recent_incidents(RECENT_INTERVAL)
         updates_data = InciUpdateMgr().recent_updates(RECENT_INTERVAL)
         dispatches_data = DispatchMgr().recent_dispatches(RECENT_INTERVAL)
         message = 'The testing is successful!!!\nTime tested: ' + time.ctime()
+        
 
         message += ("\n\nRecent Incidents\n====================")
         for incident in incidents_data:
             message += ("\n")
-            message += ("\nIncident   : " + incident["name"])
+            message += ("\nIncident   : " + incident["name"]) 
             message += ("\ntype       : " + incident["type"])
             message += ("\nStatus     : " + incident["status"])
             message += ("\nSeverity   : " + str(incident["severity"]))
@@ -76,18 +116,28 @@ class ReportMgr:
         return message
 
     def publish(self, type):
-        message = self.generate_message()
+        if type == "EmailPublisher":
+            message = self.generate_message()
+        else:
+            if type == 'TwitterPublisher':
+                message = self.generateTwitter()
+            else:
+                message = self.generateSocialMediaMessage()
         publisher = MediaPublisherLoader.load_publisher(type=type)
         return publisher.compose_and_publish(message)
 
 
-    TIME_INTERVAL = 10
+    TIME_INTERVAL = 60
 
     def periodically_publish(self,type):
         import time, threading
         threading.Timer(self.TIME_INTERVAL, lambda:self.periodically_publish(type)).start()
         message = self.publish(type)
         print("**********************\n" + time.ctime() + '\n' + message + "\n*********************")
+        
+
+
+
 
 class DispatchSmsMgr(AbstractObserver):
 
@@ -103,8 +153,8 @@ class DispatchSmsMgr(AbstractObserver):
             DispatchMgr().register(cls._instance)
         return cls._instance
 
-    def update(self, notifier, object, *args, **kwargs):
-        if isinstance(notifier, DispatchMgr):
+    def update(self, notifier, object, message, *args, **kwargs):
+        if isinstance(notifier, DispatchMgr) and message=="approve":
             dispatch = object
             self.publish(dispatch, type="SmsPublisher")
         print("\n================" + str(self) + "is notified by " + str(notifier) + "================\n")
@@ -112,6 +162,8 @@ class DispatchSmsMgr(AbstractObserver):
     def generate_message(self, dispatch):
         incident = dispatch.incident
         agency = dispatch.agency
+        from updatekeys.keysUtil import generateKey
+        url = generateKey(incident.id, agency.id)
 
         #Purpose of () at the beginning is to separate text from the message by Twilio trial account
         content = \
@@ -125,11 +177,13 @@ Dear {}:
 
       As such, {}
 
+      You may update the incident through this link: {}
+
       Thank you!
 
 Best regards,
 CMS Team""" \
-            .format(agency.name, incident.name, incident.time, incident.location, incident.description, dispatch.resource)
+            .format(agency.name, incident.name, incident.time, incident.location, incident.description, dispatch.resource, url)
         return content
 
     def publish(self, dispatch, type="SmsPublisher"):

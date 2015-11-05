@@ -317,7 +317,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
         #self.push(request)
         # create_syslog(name = "A Crisis Update for <" + dispatch.incident.name + "> Approved", generator = request.user, request = request)
         from .notifiers import DispatchMgr
-        DispatchMgr().notify(object=dispatch)
+        DispatchMgr().notify(object=dispatch, message="approve")
         self.queryset = InciUpdate.objects.all().filter(id = pk)
         return Response("Message successfully sent to {} at {}".format(dispatch.agency.name, dispatch.agency.contact))#viewsets.ModelViewSet.retrieve(self, request)
 

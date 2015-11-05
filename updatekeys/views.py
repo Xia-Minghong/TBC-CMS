@@ -44,7 +44,13 @@ class UpdatesViewSets(viewsets.ModelViewSet):
         keyset = updatekeys.keysUtil.verifyKey(kwargs['key'])
         if not keyset:
             return Response(status= status.HTTP_401_UNAUTHORIZED)
-        return Response({"true"})
+        import incident.views
+        tempClass = incident.views.IncidentViewSet()
+        tempClass.request = request
+        kwargs['pk'] = keyset["incidentID"]
+        tempClass.format_kwarg = self.format_kwarg
+        tempClass.kwargs = kwargs
+        return tempClass.retrieve(request,args,kwargs)
         
     def retrieve(self, request, *args, **kwargs):
         

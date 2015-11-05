@@ -153,8 +153,8 @@ class DispatchSmsMgr(AbstractObserver):
             DispatchMgr().register(cls._instance)
         return cls._instance
 
-    def update(self, notifier, object, *args, **kwargs):
-        if isinstance(notifier, DispatchMgr):
+    def update(self, notifier, object, message, *args, **kwargs):
+        if isinstance(notifier, DispatchMgr) and message=="approve":
             dispatch = object
             self.publish(dispatch, type="SmsPublisher")
         print("\n================" + str(self) + "is notified by " + str(notifier) + "================\n")
@@ -162,6 +162,8 @@ class DispatchSmsMgr(AbstractObserver):
     def generate_message(self, dispatch):
         incident = dispatch.incident
         agency = dispatch.agency
+        from updatekeys.keysUtil import generateKey
+        url = generateKey(incident.id, agency.id)
 
         #Purpose of () at the beginning is to separate text from the message by Twilio trial account
         content = \
@@ -175,11 +177,13 @@ Dear {}:
 
       As such, {}
 
+      You may update the incident through this link: {}
+
       Thank you!
 
 Best regards,
 CMS Team""" \
-            .format(agency.name, incident.name, incident.time, incident.location, incident.description, dispatch.resource)
+            .format(agency.name, incident.name, incident.time, incident.location, incident.description, dispatch.resource, url)
         return content
 
     def publish(self, dispatch, type="SmsPublisher"):

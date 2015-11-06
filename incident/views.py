@@ -252,8 +252,8 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         publish_incident(request)
         create_syslog(name = "A Crisis <" + incident.name + "> Updated", generator = request.user, request = request)
         from .notifiers import InciUpdateMgr
-        IncidentMgr().notify(incident, inci_update)
-        self.push(request)
+        InciUpdateMgr().notify(incident, inci_update)
+        # self.push(request)
         create_syslog(name = "A Crisis Update for <" + incident.name + "> Created", generator = request.user, request = request)
         serializer = InciUpdateSerializer(inci_update)
         return Response(serializer.data)

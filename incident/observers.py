@@ -72,12 +72,12 @@ class SystemMonitor(AbstractObserver):
             serializer = IncidentSerializer(incidents, many=True)
             publish(serializer, "incidents", request="")
 
-        elif isinstance(notifier,InciUpdateMgr) and message=="approve":
+        elif isinstance(notifier,InciUpdateMgr) and (message=="approve" or message=="reject"):
             updates = notifier.get_objects()
             serializer = InciUpdateSerializer(updates, many=True)
             publish(serializer, "updates", request="")
 
-        elif isinstance(notifier,DispatchMgr) and message=="approve":
+        elif isinstance(notifier,DispatchMgr) and (message=="approve" or message=="reject"):
             dispatches = notifier.get_objects()
             serializer = DispatchSerializer(dispatches, many=True)
             publish(serializer, "dispatches", request="")

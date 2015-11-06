@@ -69,7 +69,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
             # self.push(request)
             create_syslog(name = "A Crisis Report<" + incident.name + "> Created", generator = request.user, request = request)
             from .notifiers import IncidentMgr
-            IncidentMgr.notify(incident,message="create")
+            IncidentMgr().notify(incident,message="create")
             serializer = IncidentRetrieveSerializer(incident)
             return Response(serializer.data)
         else:
@@ -115,7 +115,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         create_syslog(name = "A Crisis Report <" + incident.name + "> Approved", generator = request.user, request = request)
         self.queryset = Incident.objects.all().filter(id = pk)
         from .notifiers import IncidentMgr, DispatchMgr
-        IncidentMgr.notify(incident,"approve")
+        IncidentMgr().notify(incident,"approve")
         DispatchMgr().propose_dispatch(incident)
         return viewsets.ModelViewSet.retrieve(self, request)
 

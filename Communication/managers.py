@@ -171,15 +171,17 @@ class DispatchSmsMgr(AbstractObserver):
 ()
 
 Dear {}:
-      An incident, {}, happened at {} at {}. Below is a short descrition of the incident.
+    An incident, {}, happened at {} at {}. Below is a short descrition of the incident.
 
-      Description: {}
+    Description: {}
 
-      As such, {}
+    As such, we would like to ask for your help with the following items or actions:
 
-      You may update the incident through this link: {}
+        {}
 
-      Thank you!
+    Subsequently, you may update the incident through this link: {}
+
+    Thank you!
 
 Best regards,
 CMS Team""" \

@@ -32,7 +32,7 @@ class EmergencyManagerMgr(AbstractObserver):
         return cls._instance
 
     def update(self, notifier, object, message, *args, **kwargs):
-        if isinstance(notifier,DispatchMgr) and message=="propose_dispatch":
+        if isinstance(notifier, DispatchMgr) and message=="propose_dispatch":
             serializer = DispatchSerializer(object)
             publish(serializer, "proposed_dispatch", request="")
         elif isinstance(notifier,IncidentMgr) and message=="create":
@@ -65,7 +65,6 @@ class SystemMonitor(AbstractObserver):
 
     def update(self, notifier, object, message, *args, **kwargs):
         print("\n================" + str(self) + "is notified by " + str(notifier) + "================\n")
-
         from .views import publish
         if isinstance(notifier,IncidentMgr) and message=="approve":
             incidents = notifier.get_objects()

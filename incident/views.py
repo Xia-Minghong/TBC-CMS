@@ -66,10 +66,10 @@ class IncidentViewSet(viewsets.ModelViewSet):
         request.data['status'] = 'initiated'
         incident, created = Incident.objects.get_or_create(**(request.data))
         if created:
-            self.push(request)
+            # self.push(request)
             create_syslog(name = "A Crisis Report<" + incident.name + "> Created", generator = request.user, request = request)
             from .notifiers import IncidentMgr
-            IncidentMgr.notify(incident,message="create")
+            IncidentMgr().notify(incident,message="create")
             serializer = IncidentRetrieveSerializer(incident)
             return Response(serializer.data)
         else:
@@ -111,11 +111,11 @@ class IncidentViewSet(viewsets.ModelViewSet):
         incident = self.get_object()
         incident.status = 'approved'
         incident.save()
-        self.push(request)
+        # self.push(request)
         create_syslog(name = "A Crisis Report <" + incident.name + "> Approved", generator = request.user, request = request)
         self.queryset = Incident.objects.all().filter(id = pk)
         from .notifiers import IncidentMgr, DispatchMgr
-        IncidentMgr.notify(incident,"approve")
+        IncidentMgr().notify(incident,"approve")
         DispatchMgr().propose_dispatch(incident)
         return viewsets.ModelViewSet.retrieve(self, request)
 
@@ -249,7 +249,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         inci_update = self.get_object()
         inci_update.is_approved = True
         inci_update.save()
-        self.push(request)
+        # self.push(request)
         create_syslog(name = "A Crisis Update for <" + inci_update.incident.name + "> Approved", generator = request.user, request = request)
         self.queryset = InciUpdate.objects.all().filter(id = pk)
         from .notifiers import InciUpdateMgr
@@ -323,7 +323,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
         dispatch = self.get_object()
         dispatch.is_approved = True
         dispatch.save()
-        self.push(request)
+        # self.push(request)
         create_syslog(name = "A Crisis Update for <" + dispatch.incident.name + "> Approved", generator = request.user, request = request)
         from .notifiers import DispatchMgr
         DispatchMgr().notify(object=dispatch, message="approve")

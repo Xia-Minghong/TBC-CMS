@@ -68,8 +68,8 @@ class IncidentViewSet(viewsets.ModelViewSet):
         if created:
             self.push(request)
             create_syslog(name = "A Crisis Report<" + incident.name + "> Created", generator = request.user, request = request)
-            from .notifiers import DispatchMgr
-            DispatchMgr().propose_dispatch(incident)
+            from .notifiers import IncidentMgr
+            IncidentMgr.notify(incident,message="create")
             serializer = IncidentRetrieveSerializer(incident)
             return Response(serializer.data)
         else:
@@ -114,6 +114,9 @@ class IncidentViewSet(viewsets.ModelViewSet):
         self.push(request)
         create_syslog(name = "A Crisis Report <" + incident.name + "> Approved", generator = request.user, request = request)
         self.queryset = Incident.objects.all().filter(id = pk)
+        from .notifiers import IncidentMgr, DispatchMgr
+        IncidentMgr.notify(incident,"approve")
+        DispatchMgr().propose_dispatch(incident)
         return viewsets.ModelViewSet.retrieve(self, request)
 
     @detail_route(methods=['get'])
@@ -239,7 +242,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         create_syslog(name = "A Crisis Update for <" + cur_incident.name + "> Created", generator = request.user, request = request)
         return response
     
-    #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/approve/
+    #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/reject/
     #Approve an incident updatekeys specified by inciUpdate_id
     @detail_route(methods=['get'])
     def approve(self, request, inci_id, pk = None):
@@ -250,10 +253,21 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         create_syslog(name = "A Crisis Update for <" + inci_update.incident.name + "> Approved", generator = request.user, request = request)
         self.queryset = InciUpdate.objects.all().filter(id = pk)
         from .notifiers import InciUpdateMgr
-        InciUpdateMgr().notify(object=inci_update)
-        self.queryset = InciUpdate.objects.all().filter(id = pk)
+        InciUpdateMgr().notify(object=inci_update, message="approve")
         return Response("Message successfully sent to {} at {}".format(inci_update.agency.name, inci_update.agency.contact))#viewsets.ModelViewSet.retrieve(self, request)
-    
+
+    #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/reject/
+    #Reject and delte an incident update specified by inciUpdate_id
+    @detail_route(methods=['get'])
+    def reject(self, request, inci_id, pk = None):
+        inci_update = self.get_object()
+        inci_update.delete()
+        self.push(request)
+        create_syslog(name = "A Crisis Update for <" + inci_update.incident.name + "> Rejected and Deleted", generator = request.user, request = request)
+        serializer = InciUpdateSerializer(inci_update)
+        return Response(serializer.data)
+
+
 class DispatchViewSet(viewsets.ModelViewSet):
     queryset = Dispatch.objects.all()
     serializer_class = DispatchSerializer
@@ -309,12 +323,24 @@ class DispatchViewSet(viewsets.ModelViewSet):
         dispatch = self.get_object()
         dispatch.is_approved = True
         dispatch.save()
-        #self.push(request)
-        # create_syslog(name = "A Crisis Update for <" + dispatch.incident.name + "> Approved", generator = request.user, request = request)
+        self.push(request)
+        create_syslog(name = "A Crisis Update for <" + dispatch.incident.name + "> Approved", generator = request.user, request = request)
         from .notifiers import DispatchMgr
         DispatchMgr().notify(object=dispatch, message="approve")
         self.queryset = InciUpdate.objects.all().filter(id = pk)
         return Response("Message successfully sent to {} at {}".format(dispatch.agency.name, dispatch.agency.contact))#viewsets.ModelViewSet.retrieve(self, request)
+
+    #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/reject/
+    #Reject and delte an incident update specified by inciUpdate_id
+    @detail_route(methods=['get'])
+    def reject(self, request, inci_id, pk = None):
+        dispatch = self.get_object()
+        dispatch.delete()
+        self.push(request)
+        create_syslog(name = "A Dispatch for <" + dispatch.incident.name + "> Rejected and Deleted", generator = request.user, request = request)
+        serializer = DispatchSerializer(dispatch)
+        return Response(serializer.data)
+
 
     def sendSMS(self, request, incident,url):
         agency = Agency.objects.get(pk = request.data['agency'])

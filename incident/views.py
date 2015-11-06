@@ -123,7 +123,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     def archive(self, request, pk = None):
         incident = self.get_object()
         incident.status = 'closed'
-        incident.save
+        incident.save()
         self.push(request)
         create_syslog(name = "A Crisis Report <" + incident.name + "> Archived", generator = request.user, request = request)
         self.queryset = Incident.objects.filter(id = pk)

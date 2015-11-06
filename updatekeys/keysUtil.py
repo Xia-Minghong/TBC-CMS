@@ -35,4 +35,6 @@ def verifyKey(key):
     queryset = updatesKeys.objects.all().filter(keys = key)
     if not queryset:
         return ()
+    if queryset[0].incidentID.status == "closed":
+        return ()
     return {"incidentID" : queryset[0].incidentID.id , "agencyID" : queryset[0].agencyID.id}   

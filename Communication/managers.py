@@ -41,6 +41,7 @@ class ReportMgr:
         message = "\nNnumber of new incidents " + str(len(incidents_data))
         message += "\nNumber of new updates " + str(len(incidents_data))
         message += "\nShelters available at NTU Hall 16B 4 - 03"
+        message += "\n visit our website for more http://goo.gl/LtRnF0"
         return message
         
     def generateSocialMediaMessage(self):

@@ -14,6 +14,7 @@ class Incident(models.Model):
                    ('initiated', 'initiated'), 
                    ('approved', 'approved'),
                    ('dispatched', 'dispatched'),
+                   ('rejected', 'rejected'),
                    ('closed', 'closed'), )
     
     #operator = models.ForeignKey('operator') #operator yet to be created

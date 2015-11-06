@@ -129,6 +129,16 @@ class IncidentViewSet(viewsets.ModelViewSet):
         self.queryset = Incident.objects.filter(id = pk)
         return viewsets.ModelViewSet.retrieve(self, request)
     
+    @detail_route(methods=['get'])
+    def reject(self, request, pk = None):
+        incident = self.get_object()
+        incident.status = 'rejected'
+        incident.save()
+        self.push(request)
+        create_syslog(name = "A Crisis Report <" + incident.name + "> Rejected", generator = request.user, request = request)
+        self.queryset = Incident.objects.filter(id = pk)
+        return viewsets.ModelViewSet.retrieve(self, request)
+    
     #GET http://127.0.0.1:8000/incidents/recent/
     @list_route(methods=['get'])
     def recent(self, request, pk = None):

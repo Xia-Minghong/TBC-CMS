@@ -75,12 +75,12 @@ class SystemMonitor(AbstractObserver):
         elif isinstance(notifier,InciUpdateMgr) and message=="approve":
             updates = notifier.get_objects()
             serializer = InciUpdateSerializer(updates, many=True)
-            publish(serializer, "incidents", request="")
+            publish(serializer, "updates", request="")
 
         elif isinstance(notifier,DispatchMgr) and message=="approve":
             dispatches = notifier.get_objects()
             serializer = DispatchSerializer(dispatches, many=True)
-            publish(serializer, "incidents", request="")
+            publish(serializer, "dispatches", request="")
         """
         consider moving publishing parts here?
         """

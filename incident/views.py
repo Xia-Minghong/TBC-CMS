@@ -66,7 +66,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         request.data['status'] = 'initiated'
         incident, created = Incident.objects.get_or_create(**(request.data))
         if created:
-            self.push(request)
+            # self.push(request)
             create_syslog(name = "A Crisis Report<" + incident.name + "> Created", generator = request.user, request = request)
             from .notifiers import IncidentMgr
             IncidentMgr.notify(incident,message="create")

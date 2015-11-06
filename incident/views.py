@@ -70,6 +70,8 @@ class IncidentViewSet(viewsets.ModelViewSet):
             create_syslog(name = "A Crisis Report<" + incident.name + "> Created", generator = request.user, request = request)
             from .notifiers import IncidentMgr
             IncidentMgr().notify(incident,message="create")
+            #retrieve from database again to ensure data format are consistent
+            incident = Incident.objects.get(id=incident.id)
             serializer = IncidentRetrieveSerializer(incident)
             return Response(serializer.data)
         else:

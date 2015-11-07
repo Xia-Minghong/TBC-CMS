@@ -42,6 +42,7 @@ class InciUpdate(models.Model):
     updated_severity = models.IntegerField()
     description = models.TextField()
     time = models.DateTimeField('time updated', default = django.utils.timezone.now)
+    photo_url = models.URLField(max_length = 500, default = '')
     def __str__(self):
         return "Incident: " + str(self.incident) + ",Agency: " + str(self.agency)
     
@@ -55,19 +56,8 @@ class Dispatch(models.Model):
         return "Incident: " + str(self.incident) + ",Agency: " + str(self.agency)
     
 class InciUpdatePhoto(models.Model):
-    
-#     def path_and_rename(self, path):
-#         def wrapper(instance, filename):
-#             ext = filename.split('.')[-1]
-#             if instance.pk:
-#                 filename = '{}.{}'.format(str(django.utils.timezone.now), ext)
-#             else:
-#                 pass
-#             return os.path.join(path, filename)
-#         return wrapper
-    
+
     photo = models.FileField(upload_to = 'inci_update_photos')
-    #photo = models.FileField(upload_to = path_and_rename(path = '/inci_update_photos/'))
-    inci_update = models.ForeignKey(InciUpdate)
+
     
     

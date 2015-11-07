@@ -8,7 +8,6 @@ class InciUpdatePhotoSerializer(serializers.ModelSerializer):
         model = InciUpdatePhoto
 
 class InciUpdateSerializer(serializers.ModelSerializer):
-    inciupdatephoto_set = InciUpdatePhotoSerializer('inciupdatephoto_set', many = True)
     class Meta:
         model = InciUpdate
         depth = 1

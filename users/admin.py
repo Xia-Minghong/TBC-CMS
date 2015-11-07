@@ -20,7 +20,6 @@ admin.site.register(ConcreteUser)
 
 
 
-
 # admin.site.register(Operator)
 # admin.site.register(KeyDecisionMaker)
 # admin.site.register(CrisisManager)

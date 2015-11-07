@@ -57,7 +57,7 @@ class Dispatch(models.Model):
     
 class InciUpdatePhoto(models.Model):
 
-    photo = models.FileField(upload_to = 'inci_update_photos/')
+    photo = models.FileField(upload_to = 'inci_update_photos')
 
     
     

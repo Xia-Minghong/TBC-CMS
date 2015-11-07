@@ -15,6 +15,7 @@ from system_log.views import create_syslog
 from django.template.context_processors import request
 from django.utils import timezone
 from App.views import publish
+from App.permission_classes import *
 
 import updatekeys
 
@@ -207,9 +208,9 @@ class IncidentViewSet(viewsets.ModelViewSet):
         return Response(data = serializer.data)
         
 
-    @list_route(methods=['get'])
+    #GET http://127.0.0.1:8000/incidents/test/
+    @list_route(methods=['get'], permission_classes=(AllowThreeTypes,))
     def test(self, request):
-        IncidentMgr().notify()
         return Response("testing, haha")
 
 
@@ -262,7 +263,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/reject/
     #Approve an incident updatekeys specified by inciUpdate_id
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], permission_classes=(AllowCrisisManager,))
     def approve(self, request, inci_id, pk = None):
         inci_update = self.get_object()
         inci_update.is_approved = True

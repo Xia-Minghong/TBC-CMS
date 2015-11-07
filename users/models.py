@@ -28,10 +28,8 @@ class ConcreteUser(models.Model):
     def __str__(self):
         return self.name + " : " + self.type
 
-#
-#
-#
-#
+
+
 # class CrisisManager(models.Model):
 #
 #     user = models.OneToOneField(User)

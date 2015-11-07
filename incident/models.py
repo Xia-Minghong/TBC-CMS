@@ -1,6 +1,7 @@
 from django.db import models
 from agency.models import Agency
 import django.utils
+import os
 # Create your models here.
 
 inci_type = (
@@ -52,3 +53,21 @@ class Dispatch(models.Model):
     time = models.DateTimeField('time dispatched', default = django.utils.timezone.now)
     def __str__(self):
         return "Incident: " + str(self.incident) + ",Agency: " + str(self.agency)
+    
+class InciUpdatePhoto(models.Model):
+    
+#     def path_and_rename(self, path):
+#         def wrapper(instance, filename):
+#             ext = filename.split('.')[-1]
+#             if instance.pk:
+#                 filename = '{}.{}'.format(str(django.utils.timezone.now), ext)
+#             else:
+#                 pass
+#             return os.path.join(path, filename)
+#         return wrapper
+    
+    photo = models.FileField(upload_to = 'inci_update_photos')
+    #photo = models.FileField(upload_to = path_and_rename(path = '/inci_update_photos/'))
+    inci_update = models.ForeignKey(InciUpdate)
+    
+    

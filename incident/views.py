@@ -18,7 +18,7 @@ from App.views import publish
 from App.permission_classes import *
 
 import updatekeys
-
+from django.views.static import serve
 
 RECENT_INTERVAL = datetime.timedelta(minutes=50)
 
@@ -371,3 +371,11 @@ class DispatchViewSet(viewsets.ModelViewSet):
             .format(url,incident.name, incident.location, incident.description, request.data['resource'])
         # from incident.
         sendingSMS(content, agency.contact)
+        
+        
+        
+class InciUpdatePhotoViewSet(viewsets.ModelViewSet):
+    queryset = InciUpdatePhoto.objects.all()
+    serializer_class = InciUpdatePhotoSerializer
+    
+    

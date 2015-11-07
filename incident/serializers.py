@@ -1,8 +1,14 @@
 from rest_framework import serializers
 from .models import Incident, InciUpdate, Dispatch
 
+from .models import InciUpdatePhoto
+
+class InciUpdatePhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InciUpdatePhoto
 
 class InciUpdateSerializer(serializers.ModelSerializer):
+    inciupdatephoto_set = InciUpdatePhotoSerializer('inciupdatephoto_set', many = True)
     class Meta:
         model = InciUpdate
         depth = 1

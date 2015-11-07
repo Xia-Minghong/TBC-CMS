@@ -21,11 +21,6 @@ class Migration(migrations.Migration):
             name='updates',
         ),
         migrations.AddField(
-            model_name='dispatch',
-            name='is_approved',
-            field=models.BooleanField(default=False),
-        ),
-        migrations.AddField(
             model_name='incident',
             name='agencies_through_dispatch',
             field=models.ManyToManyField(related_name='_agencies_through_dispatch_+', through='incident.Dispatch', to='agency.Agency'),
@@ -35,16 +30,16 @@ class Migration(migrations.Migration):
             name='agencies_through_inci_update',
             field=models.ManyToManyField(related_name='_agencies_through_inci_update_+', through='incident.InciUpdate', to='agency.Agency'),
         ),
-        migrations.AddField(
-            model_name='incident',
-            name='latitude',
-            field=models.CharField(default=b'0', max_length=50),
-        ),
-        migrations.AddField(
-            model_name='incident',
-            name='longitude',
-            field=models.CharField(default=b'0', max_length=50),
-        ),
+#         migrations.AddField(
+#             model_name='incident',
+#             name='latitude',
+#             field=models.CharField(default=b'0', max_length=50),
+#         ),
+#         migrations.AddField(
+#             model_name='incident',
+#             name='longitude',
+#             field=models.CharField(default=b'0', max_length=50),
+#         ),
         migrations.AlterField(
             model_name='incident',
             name='description',
@@ -60,4 +55,9 @@ class Migration(migrations.Migration):
             name='type',
             field=models.CharField(max_length=50, choices=[(b'haze', b'Haze'), (b'fire', b'Fire'), (b'crash', b'Crash'), (b'dengue', b'Dengue')]),
         ),
+#         migrations.AddField(
+#             model_name='dispatch',
+#             name='is_approved',
+#             field=models.BooleanField(default=False),
+#         ),
     ]

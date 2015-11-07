@@ -25,6 +25,12 @@ from updatekeys.views import UpdatesViewSets
 from users.views import UserViewSet, GroupViewSet
 import updatekeys
 
+from incident.views import InciUpdatePhotoViewSet
+from django.views.static import serve
+from django.conf.urls.static import static
+from django.conf import settings
+
+
 router = DefaultRouter()
 router.register(r'agencies', AgencyViewSet)
 router.register(r'incidents', IncidentViewSet)
@@ -36,6 +42,8 @@ router.register(r'users', UserViewSet)
 router.register(r'groups', GroupViewSet)
 router.register(r'syslogs', SyslogViewSet)
 
+router.register(r'inci_update_photos', InciUpdatePhotoViewSet)
+#router.register(r'site_media/(?P<path>.*)$', django.views.static.serve)
 urlpatterns = [
     #url(r'^admin/', include(admin.site.urls)),
     url(r'^$', views.index, name='index'),
@@ -43,4 +51,6 @@ urlpatterns = [
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^', include(router.urls)),
     url(r'^admin/', include(admin.site.urls)),
-]
+    
+    #url(r'^site_media/(?P<path>.*)$', serve),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

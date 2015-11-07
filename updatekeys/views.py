@@ -30,9 +30,18 @@ class UpdatesViewSets(viewsets.ModelViewSet):
         keyset = updatekeys.keysUtil.verifyKey(kwargs['key'])
         if not keyset:
             return Response(status= status.HTTP_401_UNAUTHORIZED)
-        if incident.models.Incident.objects.all().filter(id = keyset["incidentID"])[0].status == "closed":
-            return Response('{"key expired"}',status= status.HTTP_401_UNAUTHORIZED)
         request.data['agency'] = keyset['agencyID']
+        request.data['incident'] = keyset['incidentID']
+        kwargs['incident_id'] = keyset['incidentID']
+        
+        self.serializer_class = incident.serializers.InciUpdateWriteSerializer
+        resp = viewsets.ModelViewSet.create(self, request)
+        resp.data["id"]
+        
+        self.serializer_class = incident.serializers.InciUpdateSerializer
+        self.queryset = incident.models.InciUpdate.objects.all().filter(pk = resp.data["id"]) 
+        return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
+        
         print request.data.__class__
         tempClass = incident.views.InciUpdateViewSet()
         tempClass.request = request
@@ -46,7 +55,7 @@ class UpdatesViewSets(viewsets.ModelViewSet):
         keyset = updatekeys.keysUtil.verifyKey(kwargs['key'])
         if not keyset:
             return Response(status= status.HTTP_401_UNAUTHORIZED)
-        import incident.views
+        
         tempClass = incident.views.IncidentViewSet()
         tempClass.request = request
         kwargs['pk'] = keyset["incidentID"]

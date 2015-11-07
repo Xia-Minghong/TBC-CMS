@@ -15,6 +15,7 @@ from system_log.views import create_syslog
 from django.template.context_processors import request
 from django.utils import timezone
 from App.views import publish
+from App.permission_classes import *
 
 import updatekeys
 
@@ -70,11 +71,8 @@ class IncidentViewSet(viewsets.ModelViewSet):
             create_syslog(name = "A Crisis Report<" + incident.name + "> Created", generator = request.user, request = request)
             from .notifiers import IncidentMgr
             IncidentMgr().notify(incident,message="create")
-#             queryset = Incident.objects.order_by('-id')[0]
-            print("=============type of queryset is : ")
-            #print(str(type(queryset)))
-            print("=============")
-#             serializer = IncidentRetrieveSerializer(queryset)
+            #retrieve from database again to ensure data format are consistent
+            incident = Incident.objects.get(id=incident.id)
             serializer = IncidentRetrieveSerializer(incident)
             return Response(serializer.data)
         else:
@@ -210,9 +208,9 @@ class IncidentViewSet(viewsets.ModelViewSet):
         return Response(data = serializer.data)
         
 
-    @list_route(methods=['get'])
+    #GET http://127.0.0.1:8000/incidents/test/
+    @list_route(methods=['get'], permission_classes=(AllowThreeTypes,))
     def test(self, request):
-        IncidentMgr().notify()
         return Response("testing, haha")
 
 
@@ -257,15 +255,15 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         publish_incident(request)
         create_syslog(name = "A Crisis <" + incident.name + "> Updated", generator = request.user, request = request)
         from .notifiers import InciUpdateMgr
-        IncidentMgr().notify(incident, inci_update)
-        self.push(request)
+        InciUpdateMgr().notify(incident, inci_update)
+        # self.push(request)
         create_syslog(name = "A Crisis Update for <" + incident.name + "> Created", generator = request.user, request = request)
         serializer = InciUpdateSerializer(inci_update)
         return Response(serializer.data)
     
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/reject/
     #Approve an incident updatekeys specified by inciUpdate_id
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], permission_classes=(AllowCrisisManager,))
     def approve(self, request, inci_id, pk = None):
         inci_update = self.get_object()
         inci_update.is_approved = True

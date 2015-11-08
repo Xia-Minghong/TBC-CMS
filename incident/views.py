@@ -3,6 +3,8 @@ from .models import inci_type
 from .serializers import *
 from agency.models import Agency
 from rest_framework import viewsets
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import detail_route, list_route
 from Communication.outgoingSMS import sendingSMS
 from rest_framework.response import Response
@@ -15,14 +17,14 @@ from system_log.views import create_syslog
 from django.template.context_processors import request
 from django.utils import timezone
 from App.views import publish
-from App.permission_classes import *
+from App.permi_classes import *
 
 import updatekeys
 from django.views.static import serve
 from rest_framework.views import APIView
 from rest_framework.parsers import FileUploadParser
 
-RECENT_INTERVAL = datetime.timedelta(minutes=50)
+RECENT_INTERVAL = datetime.timedelta(minutes=3)
 
 #Push all incidents
 def publish_incident(request):
@@ -241,6 +243,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     
     #POST http://127.0.0.1:8000/incidents/inci_id/updates/
     #Regardless of the incident input, it will create an updatekeys under inci_id
+    @permission_classes((IsAuthenticated, ))
     def create(self, request, *args, **kwargs):
         print request.data.__class__
         

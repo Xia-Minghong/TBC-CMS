@@ -112,14 +112,14 @@ class DispatchMgr(AbstractNotifier):
     def propose_dispatch(self, incident):
         agency = Agency.objects.order_by('?')[0]
         resource = ""
-        if incident.type == 'haze':
-            resource = "N95 Distributor, Water Dispenser"
+        if incident.type == 'accident':
+            resource = "Police"
         elif incident.type == 'fire':
-            resource = "Fire Engine, Ambulance"
-        elif incident.type == 'crash':
-            resource = "Police Car, Ambulance"
-        elif incident.type == 'dengue':
-            resource = "Ambulance"
+            resource = "Fire Engine, Emergency Ambulance"
+        elif incident.type == 'riot':
+            resource = "Rescue and Evacuation "
+        elif incident.type == 'gas_leak':
+            resource = "Gas Leak Control"
 
         from django.utils import timezone
         dispatch = Dispatch(incident = incident, agency = agency, resource = resource, time = timezone.now())

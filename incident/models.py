@@ -26,6 +26,7 @@ class Incident(models.Model):
     location = models.CharField(max_length = 100)
     longitude = models.CharField(max_length = 50, default = '0')
     latitude = models.CharField(max_length = 50, default = '0')
+
     contact_name = models.CharField(max_length=200, default="Unknown")
     contact = models.CharField(max_length = 50)
     type = models.CharField(max_length = 50, choices = inci_type)

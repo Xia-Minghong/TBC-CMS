@@ -252,8 +252,8 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         inci_update, created = InciUpdate.objects.get_or_create(**(request.data))
         if not created:
             return Response("inci_update creation failed")
-        # self.serializer_class = InciUpdateWriteSerializer
-        # response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
+#         self.serializer_class = InciUpdateWriteSerializer
+#         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
         incident = Incident.objects.get(pk = kwargs['inci_id'])
         incident.severity = request.data['updated_severity']
         incident.save()

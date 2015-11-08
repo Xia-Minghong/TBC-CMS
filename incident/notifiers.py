@@ -57,7 +57,7 @@ class IncidentMgr(AbstractNotifier):
         return serializer.data
 
     def get_objects(self):
-        return Incident.objects.exclude(status = 'closed')
+        return Incident.objects.exclude(status = 'closed').exclude(status = 'rejected')
 
 class InciUpdateMgr(AbstractNotifier):
     _instance = None

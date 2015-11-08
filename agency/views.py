@@ -1,6 +1,8 @@
 from agency.models import Agency
 from agency.serializers import AgencySerializer
 from rest_framework import viewsets
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import AllowAny
 
 class AgencyViewSet(viewsets.ModelViewSet):
     queryset = Agency.objects.all()
@@ -13,3 +15,8 @@ class AgencyViewSet(viewsets.ModelViewSet):
     Delete: DELETE http://127.0.0.1:8000/agencies/agy_id
     
     '''
+    #GET http://127.0.0.1:8000/agencies/
+    @permission_classes((AllowAny, ))
+    def list(self, request, *args, **kwargs):
+        pass
+        # return viewsets.ModelViewSet.list(self, request, *args, **kwargs)

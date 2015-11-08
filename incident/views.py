@@ -41,11 +41,14 @@ class IncidentViewSet(viewsets.ModelViewSet):
         publish_incident(request)
 
     #GET http://127.0.0.1:8000/incidents/id/
+    @permission_classes((AllowAny,))
     def retrieve(self, request, *args, **kwargs):
         self.serializer_class = IncidentRetrieveSerializer
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
 
+
     #GET http://127.0.0.1:8000/incidents/
+    @permission_classes((AllowAny,))
     def list(self, request, *args, **kwargs):
         self.serializer_class = IncidentListSerializer
         return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
@@ -113,7 +116,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     "dispatches": []
     }
     '''
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], permission_classes=(AllowCrisisManager,))
     def approve(self, request, pk = None):
         incident = self.get_object()
         incident.status = 'approved'
@@ -199,13 +202,13 @@ class IncidentViewSet(viewsets.ModelViewSet):
             result.append(each_type)
         return Response(data = result)
     
-    @list_route(methods=['get'])
+    @list_route(methods=['get'], permission_classes=(AllowCrisisManager,))
     def allupdates(self, request):
         queryset = InciUpdate.objects.all().order_by('-time')
         serializer = InciUpdateSerializer(queryset, many = True)
         return Response(data = serializer.data)
     
-    @list_route(methods=['get'])
+    @list_route(methods=['get'], permission_classes=(AllowCrisisManager,))
     def alldispatches(self, request):
         queryset = Dispatch.objects.all().order_by('-time')
         serializer = DispatchSerializer(queryset, many = True)
@@ -283,7 +286,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
 
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/reject/
     #Reject and delte an incident update specified by inciUpdate_id
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], permission_classes=(AllowCrisisManager,))
     def reject(self, request, inci_id, pk = None):
         inci_update = self.get_object()
         inci_update.delete()

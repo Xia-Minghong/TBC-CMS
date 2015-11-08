@@ -19,6 +19,8 @@ from App.permission_classes import *
 
 import updatekeys
 from django.views.static import serve
+from rest_framework.views import APIView
+from rest_framework.parsers import FileUploadParser
 
 RECENT_INTERVAL = datetime.timedelta(minutes=50)
 
@@ -264,6 +266,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/reject/
     #Approve an incident updatekeys specified by inciUpdate_id
     @detail_route(methods=['get'], permission_classes=(AllowCrisisManager,))
+    #@detail_route(methods=['get'])
     def approve(self, request, inci_id, pk = None):
         inci_update = self.get_object()
         inci_update.is_approved = True
@@ -373,9 +376,22 @@ class DispatchViewSet(viewsets.ModelViewSet):
         sendingSMS(content, agency.contact)
         
         
-        
+     
+# class FileUploadView(APIView): 
+#     parser_classes = (FileUploadParser,)
+#     def put(self, request, filename, format=None):
+#         file_obj = request.data['file']
+#         file_obj.save()
+#         return Response(data = filename, status=204)
+#     def get(self, request):
+#         return Response('GET')
 class InciUpdatePhotoViewSet(viewsets.ModelViewSet):
     queryset = InciUpdatePhoto.objects.all()
     serializer_class = InciUpdatePhotoSerializer
-    
-    
+     
+    def create(self, request, *args, **kwargs):
+        self.serializer_class = InciUpdatePhotoSerializer
+        response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
+#         file_obj = request.FILES['photo']
+#         file_obj.save()
+        return response

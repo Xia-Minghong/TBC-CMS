@@ -3,7 +3,7 @@ from .models import inci_type
 from .serializers import *
 from agency.models import Agency
 from rest_framework import viewsets
-from rest_framework.decorators import permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import detail_route, list_route
 from Communication.outgoingSMS import sendingSMS
@@ -48,8 +48,8 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
 
     #GET http://127.0.0.1:8000/incidents/
-    # @list_route(methods=['get'], permission_classes=[AllowAny])
-    @permission_classes([AllowAny])
+    # @permission_classes([AllowAny])
+    @list_route(methods=['get'], permission_classes=[AllowAny,])
     def list(self, request, *args, **kwargs):
         self.serializer_class = IncidentListSerializer
         return viewsets.ModelViewSet.list(self, request, *args, **kwargs)

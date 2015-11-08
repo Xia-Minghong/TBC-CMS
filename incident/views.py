@@ -265,7 +265,10 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         self.serializer_class = InciUpdateWriteSerializer
         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
         incident = Incident.objects.get(pk = kwargs['inci_id'])
-        incident.severity = request.data['updated_severity']
+        
+        #incident severity should be updated upon approval
+        #incident.severity = request.data['updated_severity']
+        
         incident.save()
         publish_incident(request)
         
@@ -280,11 +283,16 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/reject/
     #Approve an incident updatekeys specified by inciUpdate_id
-    @detail_route(methods=['get'], permission_classes=(AllowCrisisManager,))
+    @detail_route(methods=['get'], permission_classes=(AllowAny,))
     #@detail_route(methods=['get'])
     def approve(self, request, inci_id, pk = None):
         inci_update = self.get_object()
         inci_update.is_approved = True
+        
+        aIncident = Incident.objects.get(pk = inci_id)
+        aIncident.severity = inci_update.updated_severity
+        aIncident.save()
+        
         inci_update.save()
         # self.push(request)
         create_syslog(name = "A Crisis Update for <" + inci_update.incident.name + "> Approved", generator = request.user, request = request)

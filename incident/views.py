@@ -18,6 +18,7 @@ from django.template.context_processors import request
 from django.utils import timezone
 from App.views import publish
 from App.permi_classes import *
+from rest_framework_condition import Or, And, Not
 
 import updatekeys
 from django.views.static import serve
@@ -36,6 +37,11 @@ def publish_incident(request):
 class IncidentViewSet(viewsets.ModelViewSet):
     queryset = Incident.objects.exclude(status = 'closed').exclude(status = 'rejected')
     serializer_class = IncidentSerializer
+
+    def get_permissions(self):
+        if self.action in ('update',):
+            self.permission_classes = [permissions.AllowAny,]
+        return super(self.__class__, self).get_permissions()
     
     def push(self, request):
         publish_incident(request)
@@ -48,8 +54,8 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
 
     #GET http://127.0.0.1:8000/incidents/
-    # @permission_classes([AllowAny])
-    @list_route(methods=['get'], permission_classes=[AllowAny,])
+    # @list_route(methods=['get'], permission_classes=[AllowAny,])
+    @permission_classes([Not(IsAuthenticated),AllowAny,])
     def list(self, request, *args, **kwargs):
         self.serializer_class = IncidentListSerializer
         return viewsets.ModelViewSet.list(self, request, *args, **kwargs)

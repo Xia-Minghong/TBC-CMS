@@ -28,13 +28,13 @@ RECENT_INTERVAL = datetime.timedelta(minutes=3)
 
 #Push all incidents
 def publish_incident(request):
-    queryset = Incident.objects.exclude(status = 'closed')
+    queryset = Incident.objects.exclude(status = 'closed').exclude(status = 'rejected')
     serializer = IncidentSerializer(queryset, many = True)
     publish(serializer, "incidents", request)
     
     
 class IncidentViewSet(viewsets.ModelViewSet):
-    queryset = Incident.objects.exclude(status = 'closed')
+    queryset = Incident.objects.exclude(status = 'closed').exclude(status = 'rejected')
     serializer_class = IncidentSerializer
     
     def push(self, request):

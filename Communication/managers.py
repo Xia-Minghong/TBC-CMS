@@ -41,7 +41,7 @@ class ReportMgr:
         message = "\nNnumber of new incidents " + str(len(incidents_data))
         message += "\nNumber of new updates " + str(len(incidents_data))
         message += "\nShelters available at NTU Hall 16B 4 - 03"
-        message += "\n visit our website for more http://goo.gl/LtRnF0"
+        message += "\n visit our website for more http://cms.h5.io/"
         return message
         
     def generateSocialMediaMessage(self):
@@ -84,7 +84,7 @@ class ReportMgr:
         #message = 'The testing is successful!!!\nTime tested: ' + time.ctime()
         
 
-        message += ("\n\nRecent Incidents\n====================")
+        message = ("\n\nRecent Incidents\n====================")
         for incident in incidents_data:
             message += ("\n")
             message += ("\nIncident   : " + incident["name"]) 
@@ -170,8 +170,6 @@ class DispatchSmsMgr(AbstractObserver):
         #Purpose of () at the beginning is to separate text from the message by Twilio trial account
         content = \
             """
-()
-
 Dear {}:
     An incident, {}, happened at {} at {}. Below is a short descrition of the incident.
 

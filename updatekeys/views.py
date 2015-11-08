@@ -29,7 +29,7 @@ class UpdatesViewSets(viewsets.ModelViewSet):
         
         keyset = updatekeys.keysUtil.verifyKey(kwargs['key'])
         if not keyset:
-            return Response(status= status.HTTP_401_UNAUTHORIZED)
+            return Response(status= status.HTTP_406_NOT_ACCEPTABLE)
         request.data['agency'] = keyset['agencyID']
         request.data['incident'] = keyset['incidentID']
         kwargs['incident_id'] = keyset['incidentID']
@@ -49,7 +49,7 @@ class UpdatesViewSets(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         keyset = updatekeys.keysUtil.verifyKey(kwargs['key'])
         if not keyset:
-            return Response(status= status.HTTP_401_UNAUTHORIZED)
+            return Response(status= status.HTTP_406_NOT_ACCEPTABLE)
         
         tempClass = incident.views.IncidentViewSet()
         tempClass.request = request

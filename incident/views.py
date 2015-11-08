@@ -48,7 +48,8 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
 
     #GET http://127.0.0.1:8000/incidents/
-    @permission_classes((AllowAny,))
+    @permission_classes([AllowAny])
+    # @list_route(methods=['get'], permission_classes=[AllowAny])
     def list(self, request, *args, **kwargs):
         self.serializer_class = IncidentListSerializer
         return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
@@ -202,13 +203,13 @@ class IncidentViewSet(viewsets.ModelViewSet):
             result.append(each_type)
         return Response(data = result)
     
-    @list_route(methods=['get'], permission_classes=(AllowCrisisManager,))
+    @list_route(methods=['get'], permission_classes=(AllowAny,))
     def allupdates(self, request):
         queryset = InciUpdate.objects.all().order_by('-time')
         serializer = InciUpdateSerializer(queryset, many = True)
         return Response(data = serializer.data)
     
-    @list_route(methods=['get'], permission_classes=(AllowCrisisManager,))
+    @list_route(methods=['get'], permission_classes=(AllowAny,))
     def alldispatches(self, request):
         queryset = Dispatch.objects.all().order_by('-time')
         serializer = DispatchSerializer(queryset, many = True)
@@ -216,7 +217,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         
 
     #GET http://127.0.0.1:8000/incidents/test/
-    @list_route(methods=['get'], permission_classes=(AllowThreeTypes,))
+    @list_route(methods=['get'], permission_classes=(AllowAny,))
     def test(self, request):
         return Response("testing, haha")
 

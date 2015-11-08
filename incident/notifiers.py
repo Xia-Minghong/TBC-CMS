@@ -117,7 +117,7 @@ class DispatchMgr(AbstractNotifier):
         elif incident.type == 'fire':
             resource = "Fire Engine, Emergency Ambulance"
         elif incident.type == 'riot':
-            resource = "Rescue and Evacuation "
+            resource = "Rescue and Evacuation"
         elif incident.type == 'gas_leak':
             resource = "Gas Leak Control"
 

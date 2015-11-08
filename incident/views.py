@@ -4,7 +4,7 @@ from .serializers import *
 from agency.models import Agency
 from rest_framework import viewsets
 from rest_framework.decorators import permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import detail_route, list_route
 from Communication.outgoingSMS import sendingSMS
 from rest_framework.response import Response
@@ -243,7 +243,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     
     #POST http://127.0.0.1:8000/incidents/inci_id/updates/
     #Regardless of the incident input, it will create an updatekeys under inci_id
-    @permission_classes((IsAuthenticated, ))
+    @permission_classes((AllowAny, ))
     def create(self, request, *args, **kwargs):
         print request.data.__class__
         

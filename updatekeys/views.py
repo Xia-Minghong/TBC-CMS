@@ -41,12 +41,7 @@ class UpdatesViewSets(viewsets.ModelViewSet):
         self.serializer_class = incident.serializers.InciUpdateSerializer
         self.queryset = incident.models.InciUpdate.objects.all().filter(pk = resp.data["id"]) 
         return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
-        
-        print request.data.__class__
-        tempClass = incident.views.InciUpdateViewSet()
-        tempClass.request = request
-        tempClass.format_kwarg = kwargs
-        return tempClass.create(request,args,inci_id = keyset["incidentID"])
+
     
 
     #GET http://localhost:8000/update/<keys>/keys/

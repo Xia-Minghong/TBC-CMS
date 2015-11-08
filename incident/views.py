@@ -3,7 +3,7 @@ from .models import inci_type
 from .serializers import *
 from agency.models import Agency
 from rest_framework import viewsets
-from rest_framework.decorators import permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import detail_route, list_route
 from Communication.outgoingSMS import sendingSMS
@@ -28,24 +28,28 @@ RECENT_INTERVAL = datetime.timedelta(minutes=3)
 
 #Push all incidents
 def publish_incident(request):
-    queryset = Incident.objects.exclude(status = 'closed')
+    queryset = Incident.objects.exclude(status = 'closed').exclude(status = 'rejected')
     serializer = IncidentSerializer(queryset, many = True)
     publish(serializer, "incidents", request)
     
     
 class IncidentViewSet(viewsets.ModelViewSet):
-    queryset = Incident.objects.exclude(status = 'closed')
+    queryset = Incident.objects.exclude(status = 'closed').exclude(status = 'rejected')
     serializer_class = IncidentSerializer
     
     def push(self, request):
         publish_incident(request)
 
     #GET http://127.0.0.1:8000/incidents/id/
+    @permission_classes((AllowAny,))
     def retrieve(self, request, *args, **kwargs):
         self.serializer_class = IncidentRetrieveSerializer
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
 
+
     #GET http://127.0.0.1:8000/incidents/
+    # @permission_classes([AllowAny])
+    @list_route(methods=['get'], permission_classes=[AllowAny,])
     def list(self, request, *args, **kwargs):
         self.serializer_class = IncidentListSerializer
         return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
@@ -113,7 +117,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     "dispatches": []
     }
     '''
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], permission_classes=(AllowCrisisManager,))
     def approve(self, request, pk = None):
         incident = self.get_object()
         incident.status = 'approved'
@@ -191,7 +195,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     }
     ]
     '''
-    @list_route(methods=['get'])
+    @list_route(methods=['get'], permission_classes=(AllowAny,))
     def types(self, request):
         result = []
         for item in inci_type:
@@ -199,13 +203,13 @@ class IncidentViewSet(viewsets.ModelViewSet):
             result.append(each_type)
         return Response(data = result)
     
-    @list_route(methods=['get'])
+    @list_route(methods=['get'], permission_classes=(AllowAny,))
     def allupdates(self, request):
         queryset = InciUpdate.objects.all().order_by('-time')
         serializer = InciUpdateSerializer(queryset, many = True)
         return Response(data = serializer.data)
     
-    @list_route(methods=['get'])
+    @list_route(methods=['get'], permission_classes=(AllowAny,))
     def alldispatches(self, request):
         queryset = Dispatch.objects.all().order_by('-time')
         serializer = DispatchSerializer(queryset, many = True)
@@ -213,7 +217,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
         
 
     #GET http://127.0.0.1:8000/incidents/test/
-    @list_route(methods=['get'], permission_classes=(AllowThreeTypes,))
+    @list_route(methods=['get'], permission_classes=(AllowAny,))
     def test(self, request):
         return Response("testing, haha")
 
@@ -283,7 +287,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
 
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/reject/
     #Reject and delte an incident update specified by inciUpdate_id
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], permission_classes=(AllowCrisisManager,))
     def reject(self, request, inci_id, pk = None):
         inci_update = self.get_object()
         inci_update.delete()

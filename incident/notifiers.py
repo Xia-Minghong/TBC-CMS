@@ -57,7 +57,7 @@ class IncidentMgr(AbstractNotifier):
         return serializer.data
 
     def get_objects(self):
-        return Incident.objects.exclude(status = 'closed')
+        return Incident.objects.exclude(status = 'closed').exclude(status = 'rejected')
 
 class InciUpdateMgr(AbstractNotifier):
     _instance = None
@@ -117,7 +117,7 @@ class DispatchMgr(AbstractNotifier):
         elif incident.type == 'fire':
             resource = "Fire Engine, Emergency Ambulance"
         elif incident.type == 'riot':
-            resource = "Rescue and Evacuation "
+            resource = "Rescue and Evacuation"
         elif incident.type == 'gas_leak':
             resource = "Gas Leak Control"
 

@@ -39,6 +39,10 @@ class EmergencyManagerMgr(AbstractObserver):
             incidents = notifier.get_objects()
             serializer = IncidentSerializer(incidents, many=True)
             publish(serializer, "incidents", request="")
+        elif isinstance(notifier,InciUpdateMgr) and message=="create":
+            updates = notifier.get_objects()
+            serializer = IncidentSerializer(updates, many=True)
+            publish(serializer, "updates", request="")
         '''
         Please add in what happens after the system notified EmergencyManagerMgr something changed
         '''

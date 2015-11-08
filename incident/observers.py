@@ -33,8 +33,9 @@ class EmergencyManagerMgr(AbstractObserver):
 
     def update(self, notifier, object, message, *args, **kwargs):
         if isinstance(notifier, DispatchMgr) and message=="propose_dispatch":
-            serializer = DispatchSerializer(object)
-            publish(serializer, "proposed_dispatch", request="")
+            dispatches = notifier.get_objects()
+            serializer = DispatchSerializer(dispatches, many=True)
+            publish(serializer, "dispatches", request="")
         elif isinstance(notifier,IncidentMgr) and message=="create":
             incidents = notifier.get_objects()
             serializer = IncidentSerializer(incidents, many=True)

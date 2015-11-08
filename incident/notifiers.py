@@ -125,3 +125,6 @@ class DispatchMgr(AbstractNotifier):
         dispatch = Dispatch(incident = incident, agency = agency, resource = resource, time = timezone.now())
         dispatch.save()
         self.notify(dispatch,"propose_dispatch")
+
+    def get_objects(self):
+        return Dispatch.objects.all()

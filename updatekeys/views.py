@@ -32,15 +32,13 @@ class UpdatesViewSets(viewsets.ModelViewSet):
             return Response(status= status.HTTP_406_NOT_ACCEPTABLE)
         request.data['agency'] = keyset['agencyID']
         request.data['incident'] = keyset['incidentID']
-        kwargs['incident_id'] = keyset['incidentID']
+        kwargs['inci_id'] = keyset['incidentID']
         
         self.serializer_class = incident.serializers.InciUpdateWriteSerializer
-        resp = viewsets.ModelViewSet.create(self, request)
-        resp.data["id"]
-        
-        self.serializer_class = incident.serializers.InciUpdateSerializer
-        self.queryset = incident.models.InciUpdate.objects.all().filter(pk = resp.data["id"]) 
-        return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
+        tmpViewSet = incident.views.InciUpdateViewSet()
+        tmpViewSet.request = self.request
+        tmpViewSet.format_kwarg = self.format_kwarg
+        return tmpViewSet.create(request, *args, **kwargs)
 
     
 
@@ -67,3 +65,4 @@ class UpdatesViewSets(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         print 'this one?'
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+

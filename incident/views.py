@@ -37,12 +37,17 @@ def publish_incident(request):
 class IncidentViewSet(viewsets.ModelViewSet):
     queryset = Incident.objects.exclude(status = 'closed').exclude(status = 'rejected')
     serializer_class = IncidentSerializer
+
+    def get_permissions(self):
+        if self.action in ('update',):
+            self.permission_classes = [permissions.AllowAny,]
+        return super(self.__class__, self).get_permissions()
     
     def push(self, request):
         publish_incident(request)
 
     #GET http://127.0.0.1:8000/incidents/id/
-    @permission_classes([Not(IsAuthenticated),])
+    @permission_classes((AllowAny,))
     def retrieve(self, request, *args, **kwargs):
         self.serializer_class = IncidentRetrieveSerializer
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
@@ -50,7 +55,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
     #GET http://127.0.0.1:8000/incidents/
     # @list_route(methods=['get'], permission_classes=[AllowAny,])
-    @permission_classes([Not(IsAuthenticated)])
+    @permission_classes([Not(IsAuthenticated),AllowAny,])
     def list(self, request, *args, **kwargs):
         self.serializer_class = IncidentListSerializer
         return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
@@ -254,18 +259,20 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         
         request.data['incident'] = kwargs['inci_id']
         request.data['is_approved'] = False
-        inci_update, created = InciUpdate.objects.get_or_create(**(request.data))
-        if not created:
-            return Response("inci_update creation failed")
-#         self.serializer_class = InciUpdateWriteSerializer
-#         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
+#         inci_update, created = InciUpdate.objects.get_or_create(**(request.data))
+#         if not created:
+#             return Response("inci_update creation failed")
+        self.serializer_class = InciUpdateWriteSerializer
+        response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
         incident = Incident.objects.get(pk = kwargs['inci_id'])
         incident.severity = request.data['updated_severity']
         incident.save()
         publish_incident(request)
+        
+        inci_update = InciUpdate.objects.get(pk = response.data['id'])
         create_syslog(name = "A Crisis <" + incident.name + "> Updated", generator = request.user, request = request)
         from .notifiers import InciUpdateMgr
-        InciUpdateMgr().notify(inci_update, "create")
+        InciUpdateMgr().notify(incident, inci_update)
         # self.push(request)
         create_syslog(name = "A Crisis Update for <" + incident.name + "> Created", generator = request.user, request = request)
         serializer = InciUpdateSerializer(inci_update)

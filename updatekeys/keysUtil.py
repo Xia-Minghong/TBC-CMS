@@ -25,7 +25,7 @@ def generateKey(incidentID , agencyID):
     key = keyObject.hexdigest()
     keyInstance = updatesKeys(incidentID = Incident.objects.get(pk = incidentID), agencyID = Agency.objects.get(pk = agencyID), keys = key)
     keyInstance.save()
-    return constants.BASEURL + keyInstance.keys
+    return constants.BASEURL + keyInstance.keys + constants.ENDURL
 
 '''
 key = keys in data

@@ -11,6 +11,8 @@ class UserViewSet(viewsets.ModelViewSet):
 
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
+
+
     # GET http://127.0.0.1:8000/users/me/
     @list_route(methods=['get'], permission_classes=(permissions.IsAuthenticated,))
     def me(self, request):

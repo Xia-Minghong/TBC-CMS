@@ -116,6 +116,7 @@ class ReportMgr:
             message += ("\n")
         return message
 
+
     def publish(self, type):
         if type == "EmailPublisher":
             message = self.generate_message()
@@ -134,8 +135,9 @@ class ReportMgr:
         threading.Timer(self.TIME_INTERVAL, lambda:self.periodically_publish(type)).start()
         message = self.publish(type)
         print("**********************\n" + time.ctime() + '\n' + message + "\n*********************")
-        
 
+
+# ReportMgr().periodically_publish()
 
 
 

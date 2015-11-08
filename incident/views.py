@@ -265,18 +265,10 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         self.serializer_class = InciUpdateWriteSerializer
         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
         incident = Incident.objects.get(pk = kwargs['inci_id'])
-        
-        #incident severity should be updated upon approval
-        #incident.severity = request.data['updated_severity']
-        
-        incident.save()
-        publish_incident(request)
-        
         inci_update = InciUpdate.objects.get(pk = response.data['id'])
-        create_syslog(name = "A Crisis <" + incident.name + "> Updated", generator = request.user, request = request)
+
         from .notifiers import InciUpdateMgr
-        InciUpdateMgr().notify(incident, "create")
-        # self.push(request)
+        InciUpdateMgr().notify(inci_update, "create")
         create_syslog(name = "A Crisis Update for <" + incident.name + "> Created", generator = request.user, request = request)
         serializer = InciUpdateSerializer(inci_update)
         return Response(serializer.data)
@@ -289,16 +281,19 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         inci_update = self.get_object()
         inci_update.is_approved = True
         
-        aIncident = Incident.objects.get(pk = inci_id)
-        aIncident.severity = inci_update.updated_severity
-        aIncident.save()
-        
+        incident = Incident.objects.get(pk = inci_id)
+        incident.severity = inci_update.updated_severity
+        incident.save()
+        publish_incident(request)
         inci_update.save()
-        # self.push(request)
+
         create_syslog(name = "A Crisis Update for <" + inci_update.incident.name + "> Approved", generator = request.user, request = request)
-        self.queryset = InciUpdate.objects.all().filter(id = pk)
+        create_syslog(name = "A Crisis <" + incident.name + "> Updated", generator = request.user, request = request)
+
         from .notifiers import InciUpdateMgr
         InciUpdateMgr().notify(object=inci_update, message="approve")
+
+        self.queryset = InciUpdate.objects.all().filter(id = pk)
         return Response("Message successfully sent to {} at {}".format(inci_update.agency.name, inci_update.agency.contact))#viewsets.ModelViewSet.retrieve(self, request)
 
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/reject/

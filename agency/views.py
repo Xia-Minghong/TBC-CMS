@@ -18,5 +18,4 @@ class AgencyViewSet(viewsets.ModelViewSet):
     #GET http://127.0.0.1:8000/agencies/
     @permission_classes((AllowAny, ))
     def list(self, request, *args, **kwargs):
-        pass
-        # return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
+        return viewsets.ModelViewSet.list(self, request, *args, **kwargs)

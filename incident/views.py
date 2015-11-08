@@ -48,8 +48,8 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
 
     #GET http://127.0.0.1:8000/incidents/
-    @permission_classes([AllowAny])
     # @list_route(methods=['get'], permission_classes=[AllowAny])
+    @permission_classes([AllowAny])
     def list(self, request, *args, **kwargs):
         self.serializer_class = IncidentListSerializer
         return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
@@ -195,7 +195,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     }
     ]
     '''
-    @list_route(methods=['get'])
+    @list_route(methods=['get'], permission_classes=(AllowAny,))
     def types(self, request):
         result = []
         for item in inci_type:

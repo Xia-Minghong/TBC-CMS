@@ -41,7 +41,7 @@ class ReportMgr:
         message = "\nNnumber of new incidents " + str(len(incidents_data))
         message += "\nNumber of new updates " + str(len(incidents_data))
         message += "\nShelters available at NTU Hall 16B 4 - 03"
-        message += "\n visit our website for more http://cms.h5.io/"
+        message += "\nwebsite for more http://cms.h5.io/"
         return message
         
     def generateSocialMediaMessage(self):
@@ -50,7 +50,7 @@ class ReportMgr:
         incidents_data = IncidentMgr().recent_incidents(RECENT_INTERVAL)
         updates_data = InciUpdateMgr().recent_updates(RECENT_INTERVAL)
         
-        message = '\nShelters available at NTU Hall 16B 4 - 03' + time.ctime()
+        message = '\nShelters available at NTU Hall 16B 4 - 03\n' + time.ctime()
         if incidents_data:
             message += ("\n\nRecent Incidents\n====================")
             for incident in incidents_data:

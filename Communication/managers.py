@@ -81,8 +81,7 @@ class ReportMgr:
         incidents_data = IncidentMgr().recent_incidents(RECENT_INTERVAL)
         updates_data = InciUpdateMgr().recent_updates(RECENT_INTERVAL)
         dispatches_data = DispatchMgr().recent_dispatches(RECENT_INTERVAL)
-        #message = 'The testing is successful!!!\nTime tested: ' + time.ctime()
-        
+
 
         message = ("\n\nRecent Incidents\n====================")
         for incident in incidents_data:

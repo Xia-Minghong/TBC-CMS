@@ -39,7 +39,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     serializer_class = IncidentSerializer
 
     def get_permissions(self):
-        if self.action in ('update',):
+        if self.action in ('list','retrieve'):
             self.permission_classes = [permissions.AllowAny,]
         return super(self.__class__, self).get_permissions()
     
@@ -47,7 +47,6 @@ class IncidentViewSet(viewsets.ModelViewSet):
         publish_incident(request)
 
     #GET http://127.0.0.1:8000/incidents/id/
-    @permission_classes((AllowAny,))
     def retrieve(self, request, *args, **kwargs):
         self.serializer_class = IncidentRetrieveSerializer
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
@@ -55,7 +54,6 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
     #GET http://127.0.0.1:8000/incidents/
     # @list_route(methods=['get'], permission_classes=[AllowAny,])
-    @permission_classes([Not(IsAuthenticated),AllowAny,])
     def list(self, request, *args, **kwargs):
         self.serializer_class = IncidentListSerializer
         return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
@@ -232,6 +230,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
 class InciUpdateViewSet(viewsets.ModelViewSet):
     queryset = InciUpdate.objects.all()
     serializer_class = InciUpdateSerializer
+
     
     def push(self, request):
         queryset = InciUpdate.objects.all()
@@ -253,7 +252,6 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     
     #POST http://127.0.0.1:8000/incidents/inci_id/updates/
     #Regardless of the incident input, it will create an updatekeys under inci_id
-    @permission_classes((AllowAny, ))
     def create(self, request, *args, **kwargs):
         print request.data.__class__
         

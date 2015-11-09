@@ -15,7 +15,11 @@ class AgencyViewSet(viewsets.ModelViewSet):
     Delete: DELETE http://127.0.0.1:8000/agencies/agy_id
     
     '''
+    def get_permissions(self):
+        if self.action in ('list','retrieve'):
+            self.permission_classes = [AllowAny,]
+        return super(self.__class__, self).get_permissions()
+
     #GET http://127.0.0.1:8000/agencies/
-    @permission_classes((AllowAny, ))
     def list(self, request, *args, **kwargs):
         return viewsets.ModelViewSet.list(self, request, *args, **kwargs)

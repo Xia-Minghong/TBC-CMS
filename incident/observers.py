@@ -32,18 +32,20 @@ class EmergencyManagerMgr(AbstractObserver):
         return cls._instance
 
     def update(self, notifier, object, message, *args, **kwargs):
-        if isinstance(notifier, DispatchMgr) and message=="propose_dispatch":
-            dispatches = notifier.get_objects()
-            serializer = DispatchSerializer(dispatches, many=True)
-            publish(serializer, "dispatches", request="")
-        elif isinstance(notifier,IncidentMgr) and message=="create":
+
+        if isinstance(notifier,IncidentMgr) and message=="create":
             incidents = notifier.get_objects()
             serializer = IncidentSerializer(incidents, many=True)
             publish(serializer, "incidents", request="")
         elif isinstance(notifier,InciUpdateMgr) and message=="create":
             updates = notifier.get_objects()
-            serializer = IncidentSerializer(updates, many=True)
+            serializer = InciUpdateSerializer(updates, many=True)
             publish(serializer, "updates", request="")
+        elif isinstance(notifier, DispatchMgr) and message=="propose_dispatch":
+            dispatches = notifier.get_objects()
+            serializer = DispatchSerializer(dispatches, many=True)
+            publish(serializer, "dispatches", request="")
+
         '''
         Please add in what happens after the system notified EmergencyManagerMgr something changed
         '''

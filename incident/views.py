@@ -283,7 +283,7 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/reject/
     #Approve an incident updatekeys specified by inciUpdate_id
-    @detail_route(methods=['get'], permission_classes=(AllowAny,))
+    @detail_route(methods=['get'], permission_classes=(AllowCrisisManager,))
     #@detail_route(methods=['get'])
     def approve(self, request, inci_id, pk = None):
         inci_update = self.get_object()

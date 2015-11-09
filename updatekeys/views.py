@@ -54,7 +54,8 @@ class UpdatesViewSets(viewsets.ModelViewSet):
         kwargs['pk'] = keyset["incidentID"]
         tempClass.format_kwarg = self.format_kwarg
         tempClass.kwargs = kwargs
-        return tempClass.retrieve(request,args,kwargs)
+        tempClass.action = self.action
+        return tempClass.retrieve(request,*args,**kwargs)
         
     def retrieve(self, request, *args, **kwargs):
         

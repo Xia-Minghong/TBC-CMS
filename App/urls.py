@@ -46,7 +46,6 @@ router.register(r'syslogs', SyslogViewSet)
 router.register(r'inci_update_photos', InciUpdatePhotoViewSet)
 #router.register(r'inci_update_photos', FileUploadView)
 urlpatterns = [
-    #url(r'^admin/', include(admin.site.urls)),
     #url(r'^inci_update_photos$', FileUploadView),
     url(r'^$', views.index, name='index'),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),

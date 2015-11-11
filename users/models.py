@@ -29,30 +29,3 @@ class ConcreteUser(models.Model):
         return self.name + " : " + self.type
 
 
-
-# class CrisisManager(models.Model):
-#
-#     user = models.OneToOneField(User)
-#
-#     name = models.CharField(max_length=100)
-#
-#     contact = models.CharField(max_length=20)
-#
-#     img_url = models.CharField(max_length=300)
-#
-#     def __str__(self):
-#         return self.name
-#
-#
-# class KeyDecisionMaker(models.Model):
-#
-#     user = models.OneToOneField(User)
-#
-#     name = models.CharField(max_length=100)
-#
-#     position = models.CharField(max_length=20)
-#
-#     img_url = models.CharField(max_length=300)
-#
-#     def __str__(self):
-#         return self.name + " : " + self.position

@@ -1,29 +1,19 @@
-from .models import Incident, InciUpdate, Dispatch
 from .models import inci_type
 from .serializers import *
 from agency.models import Agency
 from rest_framework import viewsets
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny
 from rest_framework.decorators import detail_route, list_route
 from Communication.outgoingSMS import sendingSMS
 from rest_framework.response import Response
 from ws4redis.publisher import RedisPublisher
-from ws4redis.redis_store import RedisMessage
 from .notifiers import IncidentMgr
 import json
 import datetime
 from system_log.views import create_syslog
-from django.template.context_processors import request
-from django.utils import timezone
 from App.views import publish
 from App.permi_classes import *
-from rest_condition import Or, And, Not
 
-import updatekeys
-from django.views.static import serve
-from rest_framework.views import APIView
-from rest_framework.parsers import FileUploadParser
 
 RECENT_INTERVAL = datetime.timedelta(minutes=3)
 
@@ -39,7 +29,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
     serializer_class = IncidentSerializer
 
     def get_permissions(self):
-        if self.action in ('update',):
+        if self.action in ('list','retrieve'):
             self.permission_classes = [permissions.AllowAny,]
         return super(self.__class__, self).get_permissions()
     
@@ -47,7 +37,6 @@ class IncidentViewSet(viewsets.ModelViewSet):
         publish_incident(request)
 
     #GET http://127.0.0.1:8000/incidents/id/
-    @permission_classes((AllowAny,))
     def retrieve(self, request, *args, **kwargs):
         self.serializer_class = IncidentRetrieveSerializer
         return viewsets.ModelViewSet.retrieve(self, request, *args, **kwargs)
@@ -55,7 +44,6 @@ class IncidentViewSet(viewsets.ModelViewSet):
 
     #GET http://127.0.0.1:8000/incidents/
     # @list_route(methods=['get'], permission_classes=[AllowAny,])
-    @permission_classes([Not(IsAuthenticated),AllowAny,])
     def list(self, request, *args, **kwargs):
         self.serializer_class = IncidentListSerializer
         return viewsets.ModelViewSet.list(self, request, *args, **kwargs)
@@ -81,7 +69,6 @@ class IncidentViewSet(viewsets.ModelViewSet):
         request.data['status'] = 'initiated'
         incident, created = Incident.objects.get_or_create(**(request.data))
         if created:
-            # self.push(request)
             create_syslog(name = "A Crisis Report<" + incident.name + "> Created", generator = request.user, request = request)
             from .notifiers import IncidentMgr
             IncidentMgr().notify(incident,message="create")
@@ -91,20 +78,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         else:
             return Response("incident creation failed")
-        # response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
-        # self.push(request)
-        # new_incident = Incident.objects.order_by('-id')[0]
-        # create_syslog(name = "A Crisis Report<" + new_incident.name + "> Created", generator = request.user, request = request)
-        # self.propose_dispatch(request, new_incident)
-        # return response
-    
-    
-    #PUT http://127.0.0.1:8000/incidents/inci_id/
-    # def update(self, request, *args, **kwargs):
-    #     response = viewsets.ModelViewSet.update(self, request, *args, **kwargs)
-    #     self.push(request)
-    #     create_syslog(name = "A Crisis <" + self.get_object().name + "> Updated", generator = request.user, request = request)
-    #     return response
+
 
     #GET http://127.0.0.1:8000/incidents/inci_id/approve/
     #Approve an incident
@@ -165,21 +139,12 @@ class IncidentViewSet(viewsets.ModelViewSet):
     def sync(self, request):
         # Sample code for reading incidents message queue
         redis_publisher = RedisPublisher(facility='pushes', broadcast=True)
-        #message = redis_publisher.fetch_message(request, 'pushes')
         message = redis_publisher.fetch_message(request, facility='pushes')
         # if the message is empty, replace it with a empty json/dict and convert to a string
         if not message:
             message = json.dumps({})
-        # message = json.loads(message)
-        #
-        # message['first_name'] = 'zzzz'
-        #
-        # message = RedisMessage(json.dumps(message))
-        # redis_publisher.publish_message(message)
-
         return Response(json.loads(message))
-        #return Response(data=message.replace("\\", ""))
-    
+
     #GET http://127.0.0.1:8000/incidents/types/
     '''Return
     [
@@ -232,6 +197,7 @@ class IncidentViewSet(viewsets.ModelViewSet):
 class InciUpdateViewSet(viewsets.ModelViewSet):
     queryset = InciUpdate.objects.all()
     serializer_class = InciUpdateSerializer
+
     
     def push(self, request):
         queryset = InciUpdate.objects.all()
@@ -253,15 +219,11 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     
     #POST http://127.0.0.1:8000/incidents/inci_id/updates/
     #Regardless of the incident input, it will create an updatekeys under inci_id
-    @permission_classes((AllowAny, ))
     def create(self, request, *args, **kwargs):
         print request.data.__class__
         
         request.data['incident'] = kwargs['inci_id']
         request.data['is_approved'] = False
-#         inci_update, created = InciUpdate.objects.get_or_create(**(request.data))
-#         if not created:
-#             return Response("inci_update creation failed")
         self.serializer_class = InciUpdateWriteSerializer
         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
         incident = Incident.objects.get(pk = kwargs['inci_id'])
@@ -276,7 +238,6 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
     #GET http://127.0.0.1:8000/incidents/inci_id/updates/inciUpdate_id/reject/
     #Approve an incident updatekeys specified by inciUpdate_id
     @detail_route(methods=['get'], permission_classes=(AllowCrisisManager,))
-    #@detail_route(methods=['get'])
     def approve(self, request, inci_id, pk = None):
         inci_update = self.get_object()
         inci_update.is_approved = True
@@ -330,26 +291,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
     #Regardless of the incident input, it will create a dispatch under inci_id
     def create(self, request, *args, **kwargs):
         return Response("method not allowed")
-        # request.data['incident'] = kwargs['inci_id']
-        # self.serializer_class = DispatchWriteSerializer
-        # response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
-        # cur_incident = Incident.objects.get(pk = kwargs['inci_id'])
-        # cur_incident.status = 'dispatched'
-        # cur_incident.save()
-        # publish_incident(request)
-        #
-        # #url for dispatch
-        # specialURL = updatekeys.keysUtil.generateKey(kwargs['inci_id'], request.data['agency'])
-        # print specialURL
-        #
-        # create_syslog(name = "A Crisis <" + cur_incident.name + "> Dispatched", generator = request.user, request = request)
-        # self.push(request)
-        # create_syslog(name = "A Crisis Dispatch for <" + cur_incident.name + "> Created", generator = request.user, request = request)
-        #
-        # self.sendSMS(request, cur_incident,specialURL)
-        # '''from Communication.managers import DispatchSmsMgr
-        # DispatchSmsMgr().publish(self.get_object(), type="SmsPublisher")'''
-        # return response
+
 
     #GET http://127.0.0.1:8000/incidents/inci_id/dispatches/dispatch_id/
     #Return one dispatch associated with the incident specified by inci_id
@@ -393,16 +335,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
         # from incident.
         sendingSMS(content, agency.contact)
         
-        
-     
-# class FileUploadView(APIView): 
-#     parser_classes = (FileUploadParser,)
-#     def put(self, request, filename, format=None):
-#         file_obj = request.data['file']
-#         file_obj.save()
-#         return Response(data = filename, status=204)
-#     def get(self, request):
-#         return Response('GET')
+
 class InciUpdatePhotoViewSet(viewsets.ModelViewSet):
     queryset = InciUpdatePhoto.objects.all()
     serializer_class = InciUpdatePhotoSerializer
@@ -410,6 +343,4 @@ class InciUpdatePhotoViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         self.serializer_class = InciUpdatePhotoSerializer
         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)
-#         file_obj = request.FILES['photo']
-#         file_obj.save()
         return response

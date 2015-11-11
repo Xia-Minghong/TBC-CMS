@@ -3,6 +3,7 @@ from updatekeys.models import updatesKeys
 from rest_framework import serializers
 from rest_framework.response import Response
 import updatekeys.keysUtil,incident.views, incident.serializers
+from rest_framework.permissions import AllowAny
 
 # Create your views here.
 class updatesKeySerializer(serializers.ModelSerializer):
@@ -15,8 +16,12 @@ class updatesKeySerializer(serializers.ModelSerializer):
 class UpdatesViewSets(viewsets.ModelViewSet):
     queryset = updatesKeys.objects.all()
     serializer_class = updatesKeySerializer
-    
-    
+
+    def get_permissions(self):
+        if self.action in ('create', 'list'):
+            self.permission_classes = [AllowAny,]
+        return super(self.__class__, self).get_permissions()
+
     #POST http://localhost:8000/update/<keys>/keys/
     # {"updated_severity" : 1, "description" : "hahah"}
     
@@ -26,7 +31,7 @@ class UpdatesViewSets(viewsets.ModelViewSet):
     '''
     
     def create(self, request, *args, **kwargs):
-        
+        print("**********hahahah*********")
         keyset = updatekeys.keysUtil.verifyKey(kwargs['key'])
         if not keyset:
             return Response(status= status.HTTP_406_NOT_ACCEPTABLE)

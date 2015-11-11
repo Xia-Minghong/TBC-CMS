@@ -396,7 +396,7 @@ class DispatchViewSet(viewsets.ModelViewSet):
 class InciUpdatePhotoViewSet(viewsets.ModelViewSet):
     queryset = InciUpdatePhoto.objects.all()
     serializer_class = InciUpdatePhotoSerializer
-     
+    
     def create(self, request, *args, **kwargs):
         self.serializer_class = InciUpdatePhotoSerializer
         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from Communication.models import SocialMediaReport
 from rest_framework import serializers
+from rest_framework.permissions import AllowAny
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from .managers import ReportMgr
@@ -34,10 +35,12 @@ class PublisherViewSet(viewsets.ModelViewSet):
         return Response(ReportMgr().publish(type))
 
     #GET http://127.0.0.1:8000/publishers/type/repeatedly_send/
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], permission_classes=(AllowAny,))
     def repeatedly_send(self,request, *args, **kwargs):
         type = kwargs['pk']
-        ReportMgr().periodically_publish(type)
+        types = ("EmailPublisher", "FacebookPublisher", "TwitterPublisher")
+        for type in types:
+            ReportMgr().periodically_publish(type)
         return Response("haha")
 
 

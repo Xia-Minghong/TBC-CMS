@@ -243,9 +243,9 @@ class InciUpdateViewSet(viewsets.ModelViewSet):
         inci_update.is_approved = True
         
         incident = Incident.objects.get(pk = inci_id)
-        incident.severity = inci_update.updated_severity
-        incident.save()
-        publish_incident(request)
+#         incident.severity = inci_update.updated_severity
+#         incident.save()
+#         publish_incident(request)
         inci_update.save()
 
         create_syslog(name = "A Crisis Update for <" + inci_update.incident.name + "> Approved", generator = request.user, request = request)

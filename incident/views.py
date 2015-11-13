@@ -339,7 +339,12 @@ class DispatchViewSet(viewsets.ModelViewSet):
 class InciUpdatePhotoViewSet(viewsets.ModelViewSet):
     queryset = InciUpdatePhoto.objects.all()
     serializer_class = InciUpdatePhotoSerializer
-    
+
+    def get_permissions(self):
+        if self.action in ('create',):
+            self.permission_classes = [permissions.AllowAny,]
+        return super(self.__class__, self).get_permissions()
+
     def create(self, request, *args, **kwargs):
         self.serializer_class = InciUpdatePhotoSerializer
         response = viewsets.ModelViewSet.create(self, request, *args, **kwargs)

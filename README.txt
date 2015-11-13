@@ -39,3 +39,13 @@ Is you have any issue in deploying the server, please contact:
 	Name: Xia Minghong
 	Email: mxia001@e.ntu.edu.sg
 	WhatsApp: +65 85445660
+
+==========
+DB Import
+==========
+
+After the django server is up and running, run the following commands to import database:
+python2 manage.py loaddata *.json
+
+replace * with any of the json file in TBC-CMS
+Warning***: you might run into integrity issue. Therefore, it is highly recommended that you use our deployed server

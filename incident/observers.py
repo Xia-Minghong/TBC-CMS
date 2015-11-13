@@ -41,7 +41,7 @@ class EmergencyManagerMgr(AbstractObserver):
             print("*************tetsing*********")
             updates = notifier.get_objects()
             serializer = InciUpdateSerializer(updates, many=True)
-            publish(serializer, "updates", request="")
+            publish(serializer, "inciupdates", request="")
         elif isinstance(notifier, DispatchMgr) and message=="propose_dispatch":
             dispatches = notifier.get_objects()
             serializer = DispatchSerializer(dispatches, many=True)

@@ -1,0 +1,65 @@
+[
+{
+  "fields": {
+    "contact": "+6585350032",
+    "name": "Singapore Civil Defence Forces 1",
+    "email": "weiy0007@e.ntu.edu.sg"
+  },
+  "model": "agency.agency",
+  "pk": 1
+},
+{
+  "fields": {
+    "contact": "+6592739580",
+    "name": "zjy",
+    "email": "zxcvbn5412@gmail.com"
+  },
+  "model": "agency.agency",
+  "pk": 2
+},
+{
+  "fields": {
+    "contact": "+6585350032",
+    "name": "Singapore Civil Defence Forces 2",
+    "email": "scdf2@gov.sg"
+  },
+  "model": "agency.agency",
+  "pk": 3
+},
+{
+  "fields": {
+    "contact": "+6585350032",
+    "name": "Singapore Civil Defence Forces 3",
+    "email": "scdf3@gov.sg"
+  },
+  "model": "agency.agency",
+  "pk": 4
+},
+{
+  "fields": {
+    "contact": "+6585350032",
+    "name": "Singapore Civil Defence Forces 4",
+    "email": "weiy0007@e.ntu.edu.sg"
+  },
+  "model": "agency.agency",
+  "pk": 5
+},
+{
+  "fields": {
+    "contact": "+6584393467",
+    "name": "Jiaxiang Fu",
+    "email": "fujiaxiang1995@gmail.com"
+  },
+  "model": "agency.agency",
+  "pk": 6
+},
+{
+  "fields": {
+    "contact": "+6598917374",
+    "name": "Police",
+    "email": "aaa@abc.xyz"
+  },
+  "model": "agency.agency",
+  "pk": 7
+}
+]

@@ -1,0 +1,41 @@
+[
+{
+  "fields": {
+    "operator_id": "N.A.",
+    "name": "KDM",
+    "img_url": "no image chosen",
+    "contact": "N.A.",
+    "user": 3,
+    "position": "N.A.",
+    "type": "kdm"
+  },
+  "model": "users.concreteuser",
+  "pk": 1
+},
+{
+  "fields": {
+    "operator_id": "U1320538J",
+    "name": "Mr Manager",
+    "img_url": "no image chosen",
+    "contact": "92739580",
+    "user": 4,
+    "position": "N.A.",
+    "type": "crisis_manager"
+  },
+  "model": "users.concreteuser",
+  "pk": 2
+},
+{
+  "fields": {
+    "operator_id": "lyr",
+    "name": "Operator1",
+    "img_url": "no image chosen",
+    "contact": "N.A.",
+    "user": 5,
+    "position": "operator",
+    "type": "operator"
+  },
+  "model": "users.concreteuser",
+  "pk": 3
+}
+]

@@ -127,7 +127,7 @@ class ReportMgr:
         return publisher.compose_and_publish(message)
 
 
-    TIME_INTERVAL = 60
+    TIME_INTERVAL = 120
 
     def periodically_publish(self,type):
         import time, threading

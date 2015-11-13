@@ -15,7 +15,7 @@ from App.views import publish
 from App.permi_classes import *
 
 
-RECENT_INTERVAL = datetime.timedelta(minutes=3)
+RECENT_INTERVAL = datetime.timedelta(minutes=5)
 
 #Push all incidents
 def publish_incident(request):

@@ -38,7 +38,7 @@ class ReportMgr:
         from incident.views import RECENT_INTERVAL
         incidents_data = IncidentMgr().recent_incidents(RECENT_INTERVAL)
         updates_data = InciUpdateMgr().recent_updates(RECENT_INTERVAL)
-        message = "\nNnumber of new incidents " + str(len(incidents_data))
+        message = "\nNumber of new incidents " + str(len(incidents_data))
         message += "\nNumber of new updates " + str(len(updates_data))
         message += "\nShelters available at NTU Hall 16B 4 - 03"
         message += "\nwebsite for more http://cms.h5.io/"

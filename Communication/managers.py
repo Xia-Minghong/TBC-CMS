@@ -190,7 +190,7 @@ CMS Team""" \
     def publish(self, dispatch, type="SmsPublisher"):
         message = self.generate_message(dispatch)
         publisher = MediaPublisherLoader.load_publisher(type)
-        MediaPublisherLoader.load_publisher("EmailPublisher").compose_and_publish(message = message, recipient_list = [dispatch.agency.email])
+        #MediaPublisherLoader.load_publisher("EmailPublisher").compose_and_publish(message = message, recipient_list = [dispatch.agency.email])
         return publisher.compose_and_publish(message=message, recipient_list=[dispatch.agency.contact,])
 
 #####Instantiate SocialMediaReportMgr right away
